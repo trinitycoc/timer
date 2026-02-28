@@ -1,0 +1,1014 @@
+@import '../variables';
+@import '../mixins';
+
+// Clans Page
+.clans-page {
+  @include page-wrapper;
+}
+
+.clans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 0 auto 3rem;
+  max-width: 1400px;
+}
+
+// Detailed Clan Card
+.clan-card-detailed {
+  padding: $spacing-lg;
+  padding-top: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
+  border: 2px solid rgba(102, 126, 234, 0.15);
+  border-radius: $radius-lg;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  // Adjust padding when banner is present
+  &.cwl-clan-card {
+    padding-top: calc($spacing-lg + 50px); // Add space for nail (12px) + string (20px) + banner (18px)
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.35);
+  }
+
+  .clan-header-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    width: 100%;
+  }
+
+  .clan-badge {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    background: transparent;
+    flex-shrink: 0;
+  }
+
+  .clan-name-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    min-width: 0;
+  }
+
+  .clan-name-status-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    flex-wrap: wrap;
+  }
+
+  .clan-name {
+    font-size: 1.25rem;
+    margin: 0;
+    text-align: left;
+    font-weight: 700;
+    background: $primary-gradient;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  .clan-status-inline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+
+    .status-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .status-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      line-height: 1;
+    }
+  }
+
+  .clan-tag {
+    font-size: 0.8rem;
+    color: $text-secondary;
+    margin: 0;
+    padding: 4px 10px;
+    background: rgba(102, 126, 234, 0.08);
+    border-radius: 10px;
+    font-weight: 600;
+    width: fit-content;
+  }
+
+  .clan-sheet-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-xs;
+    width: 100%;
+    margin-top: $spacing-sm;
+    padding: $spacing-sm;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+
+    .sheet-info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: $spacing-xs;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+      text-align: center;
+
+      .info-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: $text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .info-value {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: $text-primary;
+      }
+    }
+  }
+
+  // Card status colors
+  &.clan-status-open {
+    border-color: rgba(34, 197, 94, 0.5);
+    background: linear-gradient(145deg, rgba(34, 197, 94, 0.05) 0%, rgba(22, 163, 74, 0.05) 100%);
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.15);
+
+    &:hover {
+      border-color: rgba(34, 197, 94, 0.7);
+      box-shadow: 0 12px 30px rgba(34, 197, 94, 0.25);
+    }
+  }
+
+  &.clan-status-inviteOnly {
+    border-color: rgba(234, 179, 8, 0.5);
+    background: linear-gradient(145deg, rgba(234, 179, 8, 0.05) 0%, rgba(202, 138, 4, 0.05) 100%);
+    box-shadow: 0 4px 20px rgba(234, 179, 8, 0.15);
+
+    &:hover {
+      border-color: rgba(234, 179, 8, 0.7);
+      box-shadow: 0 12px 30px rgba(234, 179, 8, 0.25);
+    }
+  }
+
+  &.clan-status-closed {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: linear-gradient(145deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15);
+
+    &:hover {
+      border-color: rgba(239, 68, 68, 0.7);
+      box-shadow: 0 12px 30px rgba(239, 68, 68, 0.25);
+    }
+  }
+
+  .clan-info-row {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    width: 100%;
+    margin-top: $spacing-xs;
+  }
+
+  .clan-capital {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(255, 165, 0, 0.15);
+
+    .capital-icon {
+      font-size: 1.3rem;
+    }
+
+    .capital-icon-img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .capital-level {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #d97706;
+    }
+  }
+
+  .clan-members-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+
+    .members-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #2563eb;
+    }
+  }
+
+  .clan-league-mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(126, 34, 206, 0.15) 100%);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.15);
+
+    .league-icon {
+      font-size: 1.2rem;
+    }
+
+    .league-icon-img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .league-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #9333ea;
+    }
+  }
+
+  .visit-ingame-btn {
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    margin-top: 0;
+    background: $primary-gradient;
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  // CWL Banner Container (holds nail, string, and banner)
+  .cwl-banner-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+    animation: pendulum 3s ease-in-out infinite;
+    transform-origin: top center;
+    width: 100%;
+  }
+
+  // Nail at the top
+  .cwl-nail {
+    width: 16px;
+    height: 8px;
+    background: linear-gradient(135deg, #8b5a3c 0%, #6b4423 100%);
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 12;
+    
+    // Nail head
+    &::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 12px;
+      height: 4px;
+      background: linear-gradient(135deg, #d4a574 0%, #b8860b 100%);
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  // String/rope hanging from nail
+  .cwl-string {
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(to bottom, #d4a574 0%, #8b7355 100%);
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 11;
+    margin-top: -2px;
+  }
+
+  // CWL Space Banner
+  .cwl-space-banner {
+    position: relative;
+    width: calc(100% - 4px);
+    margin: 0 2px;
+    padding: $spacing-xs $spacing-sm;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%);
+    color: white;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    z-index: 10;
+
+    &.cwl-space-banner-full {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+      animation: pulse-full 2s ease-in-out infinite;
+    }
+
+    &.cwl-space-banner-started {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+      animation: pulse-full 2s ease-in-out infinite;
+    }
+
+    .cwl-banner-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-xs;
+      flex-wrap: wrap;
+    }
+
+    .cwl-banner-countdown {
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0.95;
+      margin-left: 0.25rem;
+    }
+
+    .cwl-banner-space {
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .cwl-banner-detail {
+      font-size: 0.75rem;
+      opacity: 0.9;
+      font-weight: 600;
+    }
+  }
+
+  // CWL Details Section
+  .cwl-details-section {
+    margin-top: $spacing-md;
+    padding: $spacing-md;
+    background: rgba(102, 126, 234, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.15);
+    border-radius: $radius-md;
+    
+    .cwl-details-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #667eea;
+      margin-bottom: $spacing-sm;
+      padding: $spacing-xs;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: $radius-sm;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba(102, 126, 234, 0.15);
+      }
+    }
+    
+    .cwl-details-group {
+      margin-top: $spacing-sm;
+      
+      .cwl-details-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: $text-primary;
+        margin-bottom: $spacing-xs;
+      }
+      
+      .cwl-details-content {
+        padding: $spacing-sm;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: $radius-sm;
+        
+        .cwl-detail-item {
+          display: flex;
+          justify-content: space-between;
+          padding: $spacing-xs 0;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+          font-size: 0.85rem;
+          
+          &:last-child {
+            border-bottom: none;
+          }
+          
+          &.error {
+            color: #dc2626;
+          }
+          
+          .detail-label {
+            font-weight: 600;
+            color: $text-secondary;
+            margin-right: $spacing-xs;
+          }
+          
+          .detail-value {
+            font-weight: 500;
+            color: $text-primary;
+            text-align: right;
+            word-break: break-word;
+          }
+        }
+      }
+      
+      .cwl-details-loading,
+      .cwl-details-error,
+      .cwl-details-placeholder {
+        padding: $spacing-sm;
+        text-align: center;
+        color: $text-secondary;
+        font-size: 0.85rem;
+        font-style: italic;
+      }
+      
+      .cwl-details-error {
+        color: #dc2626;
+      }
+    }
+    
+    .cwl-subsection {
+      margin-top: $spacing-md;
+      padding: $spacing-sm;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: $radius-sm;
+      border-left: 3px solid rgba(102, 126, 234, 0.3);
+      
+      .cwl-subsection-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #667eea;
+        margin-bottom: $spacing-sm;
+        padding-bottom: $spacing-xs;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+      }
+
+      .cwl-subsection-title-small {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #667eea;
+        margin: $spacing-xs 0;
+        padding-bottom: 2px;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+      }
+
+      .cwl-subsection-title-tiny {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #667eea;
+        margin: $spacing-xs 0;
+        opacity: 0.9;
+      }
+      
+      .cwl-round-item,
+      .cwl-clan-item,
+      .cwl-war-item {
+        margin: $spacing-xs 0;
+        padding: $spacing-xs;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: $radius-sm;
+        
+        .cwl-war-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: $spacing-xs;
+          margin-top: $spacing-xs;
+          
+          .war-tag {
+            padding: 2px 6px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: $font-family;
+            color: #667eea;
+          }
+        }
+      }
+      
+      .cwl-clans-list,
+      .cwl-members-list,
+      .cwl-war-members,
+      .cwl-attacks-list {
+        margin-top: $spacing-xs;
+        padding: $spacing-xs;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: $radius-sm;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .cwl-war-tags-full {
+        margin-top: $spacing-xs;
+        padding: $spacing-xs;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: $radius-sm;
+      }
+      
+      .cwl-war-member,
+      .cwl-member-item,
+      .cwl-attack-item {
+        margin: $spacing-xs 0;
+        padding: $spacing-xs;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: $radius-sm;
+        border-left: 2px solid rgba(102, 126, 234, 0.2);
+      }
+
+      .cwl-war-clan,
+      .cwl-war-opponent {
+        margin-top: $spacing-sm;
+        padding: $spacing-sm;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: $radius-sm;
+        border-left: 3px solid rgba(102, 126, 234, 0.4);
+      }
+
+      .cwl-war-members-summary {
+        margin-top: $spacing-xs;
+        padding: $spacing-xs;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: $radius-sm;
+        font-size: 0.85rem;
+      }
+      
+      .cwl-json-display {
+        background: rgba(0, 0, 0, 0.05);
+        padding: $spacing-sm;
+        border-radius: $radius-sm;
+        font-family: $font-family;
+        font-size: 0.75rem;
+        overflow-x: auto;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: $text-primary;
+      }
+    }
+  }
+
+  // Admin Mode Indicators
+  .cwl-admin-indicator {
+    display: block;
+    margin-top: $spacing-xs;
+    padding: 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cwl-visible-badge {
+    color: #16a34a;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  }
+
+  .cwl-hidden-badge {
+    color: #9ca3af;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  }
+
+  // Admin mode card styling
+  &.cwl-clan-visible {
+    border-left: 4px solid rgba(34, 197, 94, 0.6);
+  }
+
+  &.cwl-clan-hidden {
+    border-left: 4px solid rgba(156, 163, 175, 0.6);
+    opacity: 0.85;
+  }
+
+  @keyframes pendulum {
+    0%, 100% {
+      transform: translateX(-50%) rotate(-5deg);
+    }
+    50% {
+      transform: translateX(-50%) rotate(5deg);
+    }
+  }
+
+  @keyframes pulse-full {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+}
+
+// Loading State
+.clan-card-loading {
+  .clan-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: $spacing-xl;
+
+    p {
+      color: $text-secondary;
+      font-size: 0.9rem;
+    }
+
+    .loading-hint {
+      color: $text-secondary;
+      font-size: 0.85rem;
+      margin-top: $spacing-xs;
+      font-style: italic;
+      text-align: center;
+      padding: $spacing-xs $spacing-sm;
+      background: rgba(102, 126, 234, 0.08);
+      border-radius: 8px;
+      border: 1px solid rgba(102, 126, 234, 0.15);
+    }
+  }
+}
+
+// Error State
+.clan-card-error {
+  opacity: 0.6;
+
+  .clan-error {
+    padding: $spacing-lg;
+    text-align: center;
+  }
+
+  .error-title {
+    color: #ef4444;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: $spacing-sm;
+  }
+
+  .error-message {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin: $spacing-xs 0;
+    line-height: 1.5;
+  }
+
+  .error-hint {
+    color: $text-secondary;
+    font-size: 0.75rem;
+    margin-top: $spacing-xs;
+  }
+}
+
+// Error Banner
+.error-banner {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin: 0 auto 2rem;
+  max-width: 800px;
+
+  p {
+    margin: $spacing-xs 0;
+    color: #ef4444;
+    text-align: center;
+  }
+
+  .error-hint {
+    font-size: 0.9rem;
+    color: $text-secondary;
+
+    code {
+      background: rgba(0, 0, 0, 0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+    }
+  }
+}
+
+// Clans Footer
+.clans-footer {
+  text-align: center;
+  margin-top: $spacing-xl;
+
+  .info-text {
+    color: $text-secondary;
+    font-size: 0.9rem;
+    margin: $spacing-xs 0;
+  }
+}
+
+// No Data Message
+.no-data-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: $spacing-xl;
+  color: $text-secondary;
+  font-size: 1.125rem;
+}
+
+// Responsive
+@include mobile {
+  .clans-grid {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+    padding: 0 $spacing-xs;
+  }
+
+  .clan-card-detailed {
+    padding: $spacing-md;
+
+    .clan-badge {
+      width: 70px;
+      height: 70px;
+    }
+
+    .clan-name {
+      font-size: 1.25rem;
+    }
+
+    .clan-tag {
+      font-size: 0.8rem;
+    }
+
+    .clan-info-row {
+      gap: $spacing-xs;
+    }
+
+    .clan-capital,
+    .clan-members-count,
+    .clan-league-mini {
+      padding: $spacing-xs $spacing-sm;
+      font-size: 0.85rem;
+
+      .capital-icon-img,
+      .league-icon-img {
+        width: 20px;
+        height: 20px;
+      }
+
+      .members-label {
+        font-size: 0.85rem;
+      }
+    }
+
+    .visit-ingame-btn {
+      padding: $spacing-xs $spacing-sm;
+      font-size: 0.85rem;
+    }
+  }
+
+  .error-banner {
+    margin: 0 $spacing-sm 1.5rem;
+    padding: $spacing-sm;
+  }
+
+  .clans-footer {
+    padding: 0 $spacing-sm;
+
+    .info-text {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// Dark Mode
+@media (prefers-color-scheme: dark) {
+  .clan-card-detailed {
+    background: linear-gradient(145deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
+    border-color: rgba(102, 126, 234, 0.25);
+
+    .clan-badge {
+      background: transparent;
+    }
+
+    .clan-tag {
+      background: rgba(102, 126, 234, 0.15);
+      color: $text-dark-secondary;
+    }
+
+    .clan-status-inline {
+      .status-label {
+        color: $text-dark-secondary;
+      }
+    }
+
+    .clan-sheet-info {
+      background: rgba(102, 126, 234, 0.1);
+      border-color: rgba(102, 126, 234, 0.2);
+
+      .sheet-info-item {
+        background: rgba(255, 255, 255, 0.05);
+
+        .info-label {
+          color: $text-dark-secondary;
+        }
+
+        .info-value {
+          color: $text-dark-primary;
+        }
+      }
+    }
+
+    &.clan-status-open {
+      border-color: rgba(34, 197, 94, 0.6);
+      background: linear-gradient(145deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%);
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
+
+      &:hover {
+        border-color: rgba(34, 197, 94, 0.8);
+        box-shadow: 0 12px 30px rgba(34, 197, 94, 0.3);
+      }
+    }
+
+    &.clan-status-inviteOnly {
+      border-color: rgba(234, 179, 8, 0.6);
+      background: linear-gradient(145deg, rgba(234, 179, 8, 0.1) 0%, rgba(202, 138, 4, 0.1) 100%);
+      box-shadow: 0 4px 20px rgba(234, 179, 8, 0.2);
+
+      &:hover {
+        border-color: rgba(234, 179, 8, 0.8);
+        box-shadow: 0 12px 30px rgba(234, 179, 8, 0.3);
+      }
+    }
+
+    &.clan-status-closed {
+      border-color: rgba(239, 68, 68, 0.6);
+      background: linear-gradient(145deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
+
+      &:hover {
+        border-color: rgba(239, 68, 68, 0.8);
+        box-shadow: 0 12px 30px rgba(239, 68, 68, 0.3);
+      }
+    }
+
+    .clan-capital {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+      border-color: rgba(255, 215, 0, 0.4);
+
+      .capital-level {
+        color: #fbbf24;
+      }
+    }
+
+    .clan-members-count {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(37, 99, 235, 0.25) 100%);
+      border-color: rgba(59, 130, 246, 0.4);
+
+      .members-label {
+        color: #60a5fa;
+      }
+    }
+
+    .clan-league-mini {
+      background: linear-gradient(135deg, rgba(147, 51, 234, 0.25) 0%, rgba(126, 34, 206, 0.25) 100%);
+      border-color: rgba(147, 51, 234, 0.4);
+
+      .league-name {
+        color: #c084fc;
+      }
+    }
+
+    .visit-ingame-btn {
+      background: $primary-gradient;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+      &:hover {
+        box-shadow: 0 6px 15px rgba(102, 126, 234, 0.5);
+      }
+    }
+
+    // CWL Banner Container - Dark Mode
+    .cwl-banner-container {
+      .cwl-nail {
+        background: linear-gradient(135deg, #6b4423 0%, #4a2e18 100%);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        
+        &::before {
+          background: linear-gradient(135deg, #b8860b 0%, #8b6914 100%);
+        }
+      }
+
+      .cwl-string {
+        background: linear-gradient(to bottom, #b8860b 0%, #6b4423 100%);
+        box-shadow: 0 0 2px rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    // CWL Space Banner - Dark Mode
+    .cwl-space-banner {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+
+      &.cwl-space-banner-full {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+      }
+
+      &.cwl-space-banner-started {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+      }
+    }
+
+    // Admin Mode Indicators - Dark Mode
+    .cwl-admin-indicator {
+      .cwl-visible-badge {
+        color: #4ade80;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .cwl-hidden-badge {
+        color: #9ca3af;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    // Admin mode card styling - Dark Mode
+    &.cwl-clan-visible {
+      border-left-color: rgba(34, 197, 94, 0.7);
+    }
+
+    &.cwl-clan-hidden {
+      border-left-color: rgba(156, 163, 175, 0.7);
+      opacity: 0.75;
+    }
+  }
+}
+
+// Loading State - Dark Mode (outside detailed card)
+@media (prefers-color-scheme: dark) {
+  .clan-card-loading {
+    .clan-loading {
+      p {
+        color: $text-dark-secondary;
+      }
+
+      .loading-hint {
+        color: $text-dark-secondary;
+        background: rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.25);
+      }
+    }
+  }
+}
+

@@ -1,0 +1,444 @@
+@import '../variables';
+@import '../mixins';
+
+// Hero Section (Home Page)
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  @include page-wrapper;
+  padding-top: $spacing-xl;
+  padding-bottom: $spacing-xl;
+  min-height: 500px;
+  position: relative;
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    position: relative;
+    z-index: 1;
+  }
+
+  &-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    @include gradient-text;
+  }
+
+  &-subtitle {
+    font-size: 1.25rem;
+    color: $text-secondary;
+    line-height: 1.6;
+  }
+
+  &-search {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+    max-width: 500px;
+  }
+
+  &-actions {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+  }
+
+  &-image {
+    @include flex-center;
+    position: relative;
+    z-index: 1;
+
+    .hero-bubble-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 55%;
+      max-width: 220px;
+      height: auto;
+      filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.25));
+      pointer-events: none;
+    }
+  }
+}
+
+.geometric-shape {
+  width: 400px;
+  height: 400px;
+  background: $primary-gradient;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  animation: morphing 8s ease-in-out infinite;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+}
+
+.search-error {
+  margin-top: $spacing-xs;
+  color: #ef4444;
+  font-size: 0.95rem;
+}
+
+.home-about {
+  margin-top: $spacing-xxl;
+  padding-top: $spacing-xl;
+}
+
+.home-clans {
+  margin-top: $spacing-xxl;
+  @include page-wrapper;
+  margin-bottom: $spacing-xxl;
+
+  &-loading,
+  &-error {
+    text-align: center;
+    color: $text-secondary;
+    margin: $spacing-lg 0;
+  }
+
+  .home-clans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: $spacing-md;
+  }
+
+  .home-clan-card {
+    background: rgba(12, 18, 35, 0.75);
+    border-radius: 16px;
+    padding: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(118, 75, 162, 0.35);
+    }
+  }
+
+  .home-clan-badge {
+    width: 96px;
+    height: 96px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(102, 126, 234, 0.35);
+
+    img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+  }
+
+  .home-clan-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #fff;
+    text-align: center;
+    line-height: 1.2;
+  }
+}
+
+.home-section-footer {
+  margin-top: $spacing-lg;
+  display: flex;
+  justify-content: center;
+}
+
+.home-outline-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: rgba(15, 23, 42, 0.3);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25);
+
+  &:hover {
+    border-color: rgba(102, 126, 234, 0.8);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(102, 126, 234, 0.35);
+  }
+}
+
+// Partner Banner Section
+.home-partner {
+  @include page-wrapper;
+  margin-top: $spacing-xxl;
+  margin-bottom: $spacing-xxl;
+}
+
+.partner-banner {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 20px;
+  padding: $spacing-xl;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(102, 126, 234, 0.3);
+  }
+}
+
+.partner-content {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.partner-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.partner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.partner-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.partner-description {
+  font-size: 1rem;
+  color: rgba(203, 213, 225, 0.9);
+  margin: 0;
+}
+
+.partner-button {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: 12px;
+  background: $primary-gradient;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Clan Search Input and Button
+.clan-search-input {
+  flex: 1;
+  padding: $spacing-sm $spacing-md;
+  font-size: 1rem;
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: $text-primary;
+  transition: all 0.3s ease;
+  outline: none;
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: rgba(255, 255, 255, 1);
+  }
+
+  &::placeholder {
+    color: $text-secondary;
+  }
+}
+
+.clan-search-button {
+  padding: $spacing-sm $spacing-lg;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: $primary-gradient;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@keyframes morphing {
+
+  0%,
+  100% {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  }
+
+  25% {
+    border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
+  }
+
+  50% {
+    border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
+  }
+
+  75% {
+    border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
+  }
+}
+
+// Dark Mode
+@media (prefers-color-scheme: dark) {
+  .hero-subtitle {
+    color: $text-dark-secondary;
+  }
+
+  .clan-search-input {
+    background: rgba(30, 30, 30, 0.95);
+    color: $text-dark-primary;
+    border-color: rgba(102, 126, 234, 0.5);
+
+    &:focus {
+      background: rgba(30, 30, 30, 1);
+      border-color: $primary-color;
+    }
+
+    &::placeholder {
+      color: $text-dark-secondary;
+    }
+  }
+}
+
+// Responsive
+@include mobile {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+
+    &-watermark img {
+      width: 350px;
+    }
+
+    &-title {
+      font-size: 2.5rem;
+    }
+
+    &-actions {
+      flex-direction: column;
+    }
+  }
+
+  .geometric-shape {
+    width: 280px;
+    height: 280px;
+  }
+
+  .hero-image .hero-bubble-logo {
+    width: 65%;
+    max-width: 180px;
+  }
+
+  .hero-search {
+    max-width: 100%;
+    flex-direction: column;
+  }
+
+  .home-about {
+    margin-top: $spacing-xl;
+    padding-top: $spacing-lg;
+  }
+
+  .home-clans {
+    margin-top: $spacing-xl;
+    padding: 0;
+
+    .home-clans-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: $spacing-sm;
+    }
+
+    .home-clan-card {
+      padding: $spacing-md;
+    }
+
+    .home-clan-badge {
+      width: 80px;
+      height: 80px;
+
+      img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+
+    .home-clan-name {
+      font-size: 1rem;
+    }
+  }
+
+  .home-outline-button {
+    align-self: flex-start;
+  }
+
+  .partner-banner {
+    padding: $spacing-md $spacing-sm;
+  }
+
+  .partner-content {
+    flex-direction: column;
+    text-align: center;
+    gap: $spacing-md;
+  }
+
+  .partner-text {
+    gap: $spacing-xs;
+  }
+
+  .partner-title {
+    font-size: 1.25rem;
+  }
+
+  .partner-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

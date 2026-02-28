@@ -1,0 +1,291 @@
+@import '../variables';
+@import '../mixins';
+
+// Farming Base Layouts Page
+.farming-page {
+  @include page-wrapper;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  .page-content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+}
+
+// Rules List
+.rules-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: $spacing-lg;
+}
+
+// Rule Sections
+.rule-section {
+  background: linear-gradient(165deg, rgba(13, 18, 35, 0.95) 0%, rgba(15, 23, 42, 0.92) 65%, rgba(67, 56, 202, 0.25) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.25);
+  border-radius: 24px;
+  padding: $spacing-md $spacing-lg;
+  box-shadow: 0 18px 35px rgba(11, 18, 34, 0.35);
+  transition: all 0.3s ease;
+  color: #e2e8f0;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -40%;
+    background: radial-gradient(circle at top center, rgba(102, 126, 234, 0.25), transparent 70%);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 28px 55px rgba(37, 99, 235, 0.35);
+    border-color: rgba(118, 75, 162, 0.45);
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+    margin-bottom: $spacing-sm;
+    color: #cbd5f5;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-intro {
+    font-size: 1rem;
+    color: $text-secondary;
+    margin-bottom: $spacing-xs;
+    font-weight: 600;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    li {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: $text-primary;
+      padding-left: $spacing-md;
+      position: relative;
+
+      &::before {
+        content: '•';
+        position: absolute;
+        left: 0;
+        color: $primary-color;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      strong {
+        color: $primary-color;
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// Base Links Section
+.base-links-section {
+  margin-top: 2rem;
+  text-align: center;
+
+  .links-title {
+    font-size: 2rem;
+    margin-bottom: $spacing-sm;
+    color: $primary-color;
+    font-weight: 700;
+  }
+
+  .links-description {
+    font-size: 1.125rem;
+    color: $text-secondary;
+    margin-bottom: $spacing-lg;
+    line-height: 1.6;
+  }
+}
+
+.base-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: $spacing-md;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.base-link-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+  background: $primary-gradient;
+  border-radius: $radius-lg;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  min-height: 140px;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .base-link-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: $spacing-xs;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+
+  .base-link-th {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .base-link-arrow {
+    font-size: 1.5rem;
+    color: white;
+    opacity: 0.9;
+  }
+}
+
+// Responsive
+@include mobile {
+  .farming-page {
+    .page-content {
+      gap: 1.5rem;
+    }
+  }
+
+  .rules-list {
+    gap: 2rem;
+  }
+
+  .rule-section {
+    padding: $spacing-md;
+
+    .section-title {
+      font-size: 1.5rem;
+    }
+
+    .section-intro {
+      font-size: 0.95rem;
+    }
+
+    ul li {
+      font-size: 0.95rem;
+      padding-left: $spacing-sm;
+
+      &::before {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .base-links-section {
+    .links-title {
+      font-size: 1.5rem;
+    }
+
+    .links-description {
+      font-size: 1rem;
+    }
+  }
+
+  .base-links-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-sm;
+  }
+
+  .base-link-card {
+    padding: $spacing-md;
+    min-height: 120px;
+
+    .base-link-image {
+      width: 50px;
+      height: 50px;
+    }
+
+    .base-link-th {
+      font-size: 1.125rem;
+    }
+
+    .base-link-arrow {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// Dark Mode
+@media (prefers-color-scheme: dark) {
+  .rule-section {
+    background: linear-gradient(145deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
+    border-color: rgba(102, 126, 234, 0.25);
+
+    &:hover {
+      border-color: rgba(102, 126, 234, 0.35);
+    }
+
+    .section-title {
+      color: lighten($primary-color, 15%);
+    }
+
+    .section-intro {
+      color: $text-dark-secondary;
+    }
+
+    ul li {
+      color: $text-dark-primary;
+
+      &::before {
+        color: lighten($primary-color, 15%);
+      }
+
+      strong {
+        color: lighten($primary-color, 15%);
+      }
+    }
+  }
+
+  .base-links-section {
+    .links-title {
+      color: lighten($primary-color, 15%);
+    }
+
+    .links-description {
+      color: $text-dark-secondary;
+    }
+  }
+
+  .base-link-card {
+    background: $primary-gradient;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+
+    &:hover {
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    }
+  }
+}

@@ -1,0 +1,300 @@
+@import '../variables';
+@import '../mixins';
+
+// About Page
+.about {
+  @include page-wrapper;
+
+  &-hero {
+    max-width: 900px;
+    margin: 0 auto 4rem;
+  }
+
+  &-intro {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+
+    h3 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      @include gradient-text;
+    }
+
+    p {
+      font-size: 1.25rem;
+      color: $text-secondary;
+      line-height: 1.8;
+      margin: 0;
+    }
+  }
+
+  &-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  &-description {
+    max-width: 900px;
+    margin: 0 auto 3rem;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: $text-secondary;
+
+    p {
+      margin-bottom: 1.25rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &-card {
+    background: $bg-light;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .card-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+    }
+
+    h4 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: $text-primary;
+    }
+
+    p {
+      font-size: 1rem;
+      color: $text-secondary;
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+
+  &-perks {
+    max-width: 1200px;
+    margin: 4rem auto 3rem;
+    
+    .perks-title {
+      font-size: 2.25rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      @include gradient-text;
+    }
+
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .perk-item {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
+      border: 2px solid rgba(102, 126, 234, 0.15);
+      border-radius: 12px;
+      padding: 1.75rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        border-color: rgba(102, 126, 234, 0.35);
+      }
+
+      .perk-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+      }
+
+      h5 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: $primary-color;
+      }
+
+      p {
+        font-size: 0.95rem;
+        color: $text-secondary;
+        line-height: 1.6;
+        margin: 0;
+      }
+    }
+  }
+
+  &-cta {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-radius: 16px;
+    text-align: center;
+    border: 2px dashed rgba(102, 126, 234, 0.3);
+
+    p {
+      font-size: 1.125rem;
+      color: $text-secondary;
+      margin: 0;
+
+      strong {
+        color: $primary-color;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Responsive
+@include mobile {
+  .about {
+    &-intro {
+      padding: 2rem 1.5rem;
+
+      h3 {
+        font-size: 1.875rem;
+      }
+
+      p {
+        font-size: 1.125rem;
+      }
+    }
+
+    &-features {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    &-card {
+      padding: 1.5rem;
+
+      .card-icon {
+        font-size: 3rem;
+      }
+
+      h4 {
+        font-size: 1.25rem;
+      }
+    }
+
+    &-perks {
+      margin: 3rem auto 2rem;
+
+      .perks-title {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .perks-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      .perk-item {
+        padding: 1.5rem;
+
+        .perk-icon {
+          font-size: 2.5rem;
+        }
+
+        h5 {
+          font-size: 1.125rem;
+        }
+
+        p {
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    &-cta {
+      padding: 1.5rem;
+
+      p {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+// Dark Mode
+@media (prefers-color-scheme: dark) {
+  .about {
+    &-intro {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+      border-color: rgba(102, 126, 234, 0.3);
+
+      p {
+        color: $text-dark-secondary;
+      }
+    }
+
+    &-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(102, 126, 234, 0.2);
+
+      h4 {
+        color: $text-dark-primary;
+      }
+
+      p {
+        color: $text-dark-secondary;
+      }
+    }
+
+    &-perks {
+      .perk-item {
+        background: linear-gradient(145deg, rgba(31, 41, 55, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
+        border-color: rgba(102, 126, 234, 0.25);
+
+        &:hover {
+          border-color: rgba(102, 126, 234, 0.45);
+        }
+
+        h5 {
+          color: lighten($primary-color, 15%);
+        }
+
+        p {
+          color: $text-dark-secondary;
+        }
+      }
+    }
+
+    &-cta {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-color: rgba(102, 126, 234, 0.4);
+
+      p {
+        color: $text-dark-secondary;
+
+        strong {
+          color: lighten($primary-color, 15%);
+        }
+      }
+    }
+  }
+}
+

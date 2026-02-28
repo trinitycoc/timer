@@ -1,0 +1,54 @@
+@import './variables';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: $font-family;
+  line-height: 1.6;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: $text-primary;
+  background-color: $bg-light;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+}
+
+// Mobile Responsive
+@media (max-width: 768px) {
+  :root {
+    font-size: 14px;
+  }
+
+  body {
+    min-width: 280px;
+  }
+}
+
+// Dark Mode
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: $text-dark-primary;
+    background-color: $bg-dark;
+  }
+}
+

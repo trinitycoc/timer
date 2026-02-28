@@ -1,0 +1,86 @@
+@import './variables';
+
+// Gradient Text
+@mixin gradient-text {
+  background: $primary-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Flex Center
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+// Card Hover Effect
+@mixin card-hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+// Common Page Wrapper
+@mixin page-wrapper {
+  padding: $spacing-lg 0;
+}
+
+// Common Content Grid
+@mixin content-grid($min-width: 300px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  gap: $spacing-lg;
+  margin-top: 3rem;
+}
+
+// Common Card Base Styles
+@mixin card-base($padding: $spacing-lg) {
+  padding: $padding;
+  border-radius: $radius-md;
+  background: rgba(102, 126, 234, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.3s;
+
+  &:hover {
+    @include card-hover;
+  }
+}
+
+// Common Card Dark Mode
+@mixin card-dark-mode {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.2);
+
+  p {
+    color: $text-dark-secondary;
+  }
+}
+
+// Common Card Content Styles
+@mixin card-content {
+  h4 {
+    font-size: 1.5rem;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: $text-secondary;
+    line-height: 1.6;
+  }
+}
+
+// Responsive
+@mixin mobile {
+  @media (max-width: $breakpoint-mobile) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: $breakpoint-tablet) {
+    @content;
+  }
+}
+
