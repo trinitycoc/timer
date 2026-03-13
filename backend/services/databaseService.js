@@ -54,24 +54,8 @@ export const connectDatabase = async () => {
  */
 const createIndexes = async (database) => {
   try {
-    // Clan details collection
-    await database.collection('clans').createIndex({ tag: 1 }, { unique: true })
-    await database.collection('clans').createIndex({ updatedAt: 1 })
-    await database.collection('clans').createIndex({ 'name': 'text' }) // Text search
-
-    // Note: Regular wars and warLogs are not stored in database (memory-only cache)
-    // Removed indexes for 'wars' and 'warLogs' collections
-
-    // CWL data collection
-    await database.collection('cwlGroups').createIndex({ clanTag: 1, season: 1 }, { unique: true })
-    await database.collection('cwlGroups').createIndex({ season: 1, state: 1 })
-    
-    await database.collection('cwlWars').createIndex({ warTag: 1 }, { unique: true })
-    await database.collection('cwlWars').createIndex({ clanTag: 1, round: 1 })
-    await database.collection('cwlWars').createIndex({ clanTag: 1, state: 1 }) // Compound index for current wars query
-    await database.collection('cwlWars').createIndex({ endTime: 1 })
-
-    // Note: Statistics are not stored in database (memory-only cache)
+    // Note: Clan details from CoC API are memory-only cache (not stored in DB)
+    // Only gflClans and users are persisted
 
     // Users collection (for authentication)
     await database.collection('users').createIndex({ email: 1 }, { unique: true })
@@ -79,20 +63,21 @@ const createIndexes = async (database) => {
     await database.collection('users').createIndex({ role: 1 })
     await database.collection('users').createIndex({ createdAt: 1 })
 
-    // Trinity clans collection
-    await database.collection('trinityClans').createIndex({ tag: 1 }, { unique: true })
-    await database.collection('trinityClans').createIndex({ status: 1 })
-    await database.collection('trinityClans').createIndex({ createdAt: 1 })
+    // GFL clans collection
+    await database.collection('gflClans').createIndex({ tag: 1 }, { unique: true })
+    await database.collection('gflClans').createIndex({ status: 1 })
+    await database.collection('gflClans').createIndex({ createdAt: 1 })
 
-    // CWL clans collection
-    await database.collection('cwlClans').createIndex({ tag: 1 }, { unique: true })
-    await database.collection('cwlClans').createIndex({ inUse: 1 }, { unique: true })
-    await database.collection('cwlClans').createIndex({ status: 1 })
-    await database.collection('cwlClans').createIndex({ createdAt: 1 })
+    // Clan war state: when we last observed "notInWar" per clan (for war start/end tracking)
+    await database.collection('clanWarState').createIndex({ clanTag: 1 }, { unique: true })
+    await database.collection('clanWarState').createIndex({ lastNotInWarAt: 1 })
 
-    // Base layouts collection
-    await database.collection('baseLayouts').createIndex({ townHallLevel: 1 }, { unique: true })
-    await database.collection('baseLayouts').createIndex({ createdAt: 1 })
+    // Following clans (from sheet: tag D, name E, status G; no vary)
+    await database.collection('followingClans').createIndex({ tag: 1 }, { unique: true })
+    await database.collection('followingClans').createIndex({ status: 1 })
+    await database.collection('followingClans').createIndex({ createdAt: 1 })
+
+    // appSettings uses _id as document key (e.g. 'sync', 'trackClans'); MongoDB's default _id index is sufficient
 
     console.log('✅ Database indexes created')
   } catch (error) {

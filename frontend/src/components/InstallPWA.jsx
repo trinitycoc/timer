@@ -71,7 +71,7 @@ function InstallPWA() {
     if (isIOS) {
       // iOS instructions
       alert(
-        '📱 Install Trinity App on iOS:\n\n' +
+        '📱 Install GFL App on iOS:\n\n' +
         '1. Tap the Share button (□ with ↑)\n' +
         '2. Scroll down and tap "Add to Home Screen"\n' +
         '3. Tap "Add" in the top right\n\n' +
@@ -80,7 +80,7 @@ function InstallPWA() {
     } else if (isAndroid) {
       // Android instructions
       alert(
-        '📱 Install Trinity App on Android:\n\n' +
+        '📱 Install GFL App on Android:\n\n' +
         '1. Tap the menu (⋮) in your browser\n' +
         '2. Look for "Install App" or "Add to Home Screen"\n' +
         '3. Tap it and confirm installation\n\n' +
@@ -112,7 +112,7 @@ function InstallPWA() {
     <button
       onClick={handleInstallClick}
       className="install-pwa-button"
-      aria-label="Install Trinity App"
+      aria-label="Install GFL App"
     >
       <svg
         width="20"
@@ -315,7 +315,7 @@ export function InstallPWABanner() {
 
     if (isIOS) {
       alert(
-        '📱 Install Trinity App on iOS:\n\n' +
+        '📱 Install GFL App on iOS:\n\n' +
         '1. Tap the Share button (□ with ↑)\n' +
         '2. Scroll down and tap "Add to Home Screen"\n' +
         '3. Tap "Add" in the top right\n\n' +
@@ -323,7 +323,7 @@ export function InstallPWABanner() {
       )
     } else if (isAndroid) {
       alert(
-        '📱 Install Trinity App on Android:\n\n' +
+        '📱 Install GFL App on Android:\n\n' +
         '1. Tap the menu (⋮) in your browser\n' +
         '2. Look for "Install App" or "Add to Home Screen"\n' +
         '3. Tap it and confirm installation\n\n' +
@@ -351,7 +351,7 @@ export function InstallPWABanner() {
       <div className="install-pwa-banner-content">
         <div className="install-pwa-banner-icon">📱</div>
         <div className="install-pwa-banner-text">
-          <strong>Install Trinity App</strong>
+          <strong>Install GFL App</strong>
           <span>Get quick access on your phone</span>
         </div>
         <div className="install-pwa-banner-actions">

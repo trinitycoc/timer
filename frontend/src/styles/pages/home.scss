@@ -81,11 +81,6 @@
   font-size: 0.95rem;
 }
 
-.home-about {
-  margin-top: $spacing-xxl;
-  padding-top: $spacing-xl;
-}
-
 .home-clans {
   margin-top: $spacing-xxl;
   @include page-wrapper;
@@ -382,10 +377,6 @@
     flex-direction: column;
   }
 
-  .home-about {
-    margin-top: $spacing-xl;
-    padding-top: $spacing-lg;
-  }
 
   .home-clans {
     margin-top: $spacing-xl;

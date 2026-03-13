@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import trinityLogo from '/Trinity_Logo.png'
+import gflLogo from '/Trinity_Logo.png'
 
 function Header() {
   const navigate = useNavigate()
@@ -40,8 +40,8 @@ function Header() {
     <header className="header">
       <nav className="nav">
         <Link to="/" className="logo">
-          <img src={trinityLogo} alt="Trinity Logo" className="logo-image" />
-          <h1 className="logo-text">Trinity</h1>
+          <img src={gflLogo} alt="GFL Logo" className="logo-image" />
+          <h1 className="logo-text">GFL</h1>
         </Link>
         <button
           type="button"
@@ -56,11 +56,9 @@ function Header() {
         </button>
         <ul className={`nav-links${isMenuOpen ? ' open' : ''}`}>
           <li><Link to="/" onClick={handleLinkClick} className={isActive('/') ? 'active' : ''}>Home</Link></li>
-          <li><Link to="/about" onClick={handleLinkClick} className={isActive('/about') ? 'active' : ''}>About</Link></li>
-          <li><Link to="/clans" onClick={handleLinkClick} className={isActive('/clans') ? 'active' : ''}>Clans</Link></li>
-          <li><Link to="/cwl" onClick={handleLinkClick} className={isActive('/cwl') ? 'active' : ''}>Cwl</Link></li>
-          <li><Link to="/farming-base-layouts" onClick={handleLinkClick} className={isActive('/farming-base-layouts') ? 'active' : ''}>Farming base layouts</Link></li>
-          <li><Link to="/features" onClick={handleLinkClick} className={isActive('/features') ? 'active' : ''}>Features</Link></li>
+          {(isAdmin || isRoot) && (
+            <li><Link to="/clans" onClick={handleLinkClick} className={isActive('/clans') ? 'active' : ''}>Clans</Link></li>
+          )}
           {isAuthenticated ? (
             <>
               {isAdmin && (

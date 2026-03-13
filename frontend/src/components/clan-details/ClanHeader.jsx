@@ -3,13 +3,13 @@ import SectionTitle from '../SectionTitle'
 import cwlImage from '/cwl.webp'
 import { getLeagueImage } from '../../constants/leagueImages'
 
-function ClanHeader({ clan, currentWar, warLog, showCurrentWar, showWarLog, showCapitalRaids /* commented out - not integrated yet */, showCWLDetails, setShowCurrentWar, setShowWarLog, setShowCapitalRaids /* commented out - not integrated yet */, setShowCWLDetails, isCWLClan }) {
+function ClanHeader({ clan, currentWar, warLog, showCurrentWar, showWarLog, setShowCurrentWar, setShowWarLog }) {
   return (
     <div className="clan-header-info">
       <SectionTitle>{clan.name}</SectionTitle>
       <p className="clan-tag-large">{clan.tag}</p>
       
-      {/* First Row: Location, Members, Wins (Trinity only), CWL League */}
+      {/* First Row: Location, Members, Wins (GFL only), CWL League */}
       <div className="clan-info-grid clan-info-row-1">
         {clan.location?.name && (
           <div className="clan-info-item clan-info-inline">
@@ -19,11 +19,9 @@ function ClanHeader({ clan, currentWar, warLog, showCurrentWar, showWarLog, show
         <div className="clan-info-item clan-info-inline">
           <span className="info-value">👥 {clan.members}/50</span>
         </div>
-        {!isCWLClan && (
-          <div className="clan-info-item clan-info-inline">
-            <span className="info-value">⚔️ {clan.warWins} Wins</span>
-          </div>
-        )}
+        <div className="clan-info-item clan-info-inline">
+          <span className="info-value">⚔️ {clan.warWins} Wins</span>
+        </div>
         {clan.warLeague?.name && (
           <div className="clan-info-item clan-info-inline">
             <span className="info-value">
@@ -81,11 +79,7 @@ function ClanHeader({ clan, currentWar, warLog, showCurrentWar, showWarLog, show
         <button
           className="war-log-toggle"
           onClick={() => {
-            if (!showCurrentWar) {
-              setShowWarLog(false)
-              setShowCWLDetails(false)
-              // if (!isCWLClan) setShowCapitalRaids(false) // TODO: Capital Raids not integrated yet
-            }
+            if (!showCurrentWar) setShowWarLog(false)
             setShowCurrentWar(!showCurrentWar)
           }}
         >
@@ -95,46 +89,13 @@ function ClanHeader({ clan, currentWar, warLog, showCurrentWar, showWarLog, show
           <button
             className="war-log-toggle"
             onClick={() => {
-              if (!showWarLog) {
-                setShowCurrentWar(false)
-                setShowCWLDetails(false)
-                // if (!isCWLClan) setShowCapitalRaids(false) // TODO: Capital Raids not integrated yet
-              }
+              if (!showWarLog) setShowCurrentWar(false)
               setShowWarLog(!showWarLog)
             }}
           >
             {showWarLog ? '📊 Hide War Log' : '📊 Show War Log'}
           </button>
         )}
-        {isCWLClan && (
-          <button
-            className="war-log-toggle"
-            onClick={() => {
-              if (!showCWLDetails) {
-                setShowCurrentWar(false)
-                setShowWarLog(false)
-              }
-              setShowCWLDetails(!showCWLDetails)
-            }}
-          >
-            {showCWLDetails ? '🏆 Hide CWL Stats' : '🏆 Show CWL Stats'}
-          </button>
-        )}
-        {/* TODO: Capital Raids not integrated yet - commenting out to prevent unnecessary API calls */}
-        {/* {!isCWLClan && (
-          <button
-            className="war-log-toggle"
-            onClick={() => {
-              if (!showCapitalRaids) {
-                setShowCurrentWar(false)
-                setShowWarLog(false)
-              }
-              setShowCapitalRaids(!showCapitalRaids)
-            }}
-          >
-            {showCapitalRaids ? '🏰 Hide Capital Raids' : '🏰 Show Capital Raids'}
-          </button>
-        )} */}
         <a
           href={`https://link.clashofclans.com/en/?action=OpenClanProfile&tag=${clan.tag.replace('#', '%23')}`}
           target="_blank"

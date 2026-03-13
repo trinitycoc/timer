@@ -1,17 +1,20 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 function Footer() {
   const year = new Date().getFullYear()
+  const { isAdmin, isRoot } = useAuth()
+  const showClans = isAdmin || isRoot
 
   return (
     <footer className="footer">
       <div className="footer-top">
         <div className="footer-brand footer-section">
-          <h4 className="footer-title">Trinity</h4>
+          <h4 className="footer-title">GFL</h4>
           <p className="footer-text">
-            Trinity is a family of dedicated Clash of Clans players committed to growth, teamwork, and competitive
-            excellence. Discover our clans, track CWL progress, and join a community that supports every member.
+            GFL is a family of dedicated Clash of Clans players committed to growth, teamwork, and competitive
+            excellence. Discover our clans and join a community that supports every member.
           </p>
         </div>
 
@@ -23,26 +26,13 @@ function Footer() {
                 Home
               </Link>
             </li>
-            <li>
-              <Link to="/about" className="footer-link-item">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to="/clans" className="footer-link-item">
-                Clans
-              </Link>
-            </li>
-            <li>
-              <Link to="/cwl" className="footer-link-item">
-                CWL
-              </Link>
-            </li>
-            <li>
-              <Link to="/features" className="footer-link-item">
-                Features
-              </Link>
-            </li>
+            {showClans && (
+              <li>
+                <Link to="/clans" className="footer-link-item">
+                  Clans
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
 
@@ -87,7 +77,7 @@ function Footer() {
         <div className="footer-section footer-copy">
           <h4 className="footer-heading">Copyright</h4>
           <p className="footer-text">
-            All images, graphics, and content on this website are the property of Trinity. Any use or reproduction of
+            All images, graphics, and content on this website are the property of GFL. Any use or reproduction of
             these materials without permission is strictly prohibited.
           </p>
         </div>
@@ -95,7 +85,7 @@ function Footer() {
 
       <div className="footer-bottom">
         <p>
-          &copy;{year} Trinity. Built by{' '}
+          &copy;{year} GFL. Built by{' '}
           <a href="https://github.com/abhiiiijain" target="_blank" rel="noopener noreferrer">
             Hell Raiser
           </a>

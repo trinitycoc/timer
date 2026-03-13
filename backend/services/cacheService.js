@@ -10,20 +10,11 @@ const cache = new NodeCache({
 })
 
 // Map cache keys to database collections
-// Note: 'war:', 'warlog:', and 'stats:' keys are memory-only (not stored in database)
-const CACHE_TO_COLLECTION = {
-  'clan:': 'clans',
-  'cwlgroup:': 'cwlGroups',
-  'cwlwar:': 'cwlWars'
-}
-
-// Helper to determine collection from cache key (optimized with early returns)
+// Note: 'clan:', 'war:', 'warlog:', and 'stats:' keys are memory-only (not stored in database)
+// Only gflClans and users are stored in DB; clan details from CoC API are cached in memory only
 const getCollectionFromKey = (key) => {
-  // Optimized: check most common prefixes first
-  if (key.startsWith('clan:')) return 'clans'
-  if (key.startsWith('cwlgroup:')) return 'cwlGroups'
-  if (key.startsWith('cwlwar:')) return 'cwlWars'
-  return 'cache' // Default collection
+  if (key.startsWith('clan:')) return null // memory-only, no DB
+  return 'cache' // Default collection for other keys
 }
 
 // Helper to extract identifier from cache key
@@ -32,12 +23,6 @@ const getIdentifierFromKey = (key) => {
   // Extract tag or identifier from key (e.g., "clan:#2PP" -> { tag: "#2PP" })
   if (key.startsWith('clan:')) {
     return { tag: key.slice(5) } // More efficient than replace
-  }
-  if (key.startsWith('cwlgroup:')) {
-    return { clanTag: key.slice(9) }
-  }
-  if (key.startsWith('cwlwar:')) {
-    return { warTag: key.slice(7) }
   }
   return { key }
 }
@@ -64,12 +49,11 @@ export const cacheService = {
     // First check memory cache (fastest)
     const memoryCache = cache.get(key)
     if (memoryCache) {
-      logger.debug(`[CACHE HIT] Memory cache: ${key}`)
       return memoryCache
     }
 
-    // Skip database lookup for regular wars, warLogs, and statistics (memory-only)
-    if (key.startsWith('war:') || key.startsWith('warlog:') || key.startsWith('stats:')) {
+    // Skip database lookup for clan details, wars, warLogs, statistics (memory-only)
+    if (key.startsWith('clan:') || key.startsWith('war:') || key.startsWith('warlog:') || key.startsWith('stats:')) {
       return undefined
     }
 
@@ -77,6 +61,7 @@ export const cacheService = {
     if (isDatabaseConnected()) {
       try {
         const collection = getCollectionFromKey(key)
+        if (!collection) return undefined
         const query = getIdentifierFromKey(key)
         
         const dbDoc = await databaseService.findOne(collection, query)
@@ -137,17 +122,17 @@ export const cacheService = {
     // Always set in memory cache (fast access)
     const memoryResult = cache.set(key, value, ttl)
 
-    // Skip database storage for regular wars, warLogs, and statistics (memory-only)
-    if (key.startsWith('war:') || key.startsWith('warlog:') || key.startsWith('stats:')) {
+    // Skip database storage for clan details, wars, warLogs, statistics (memory-only)
+    if (key.startsWith('clan:') || key.startsWith('war:') || key.startsWith('warlog:') || key.startsWith('stats:')) {
       return memoryResult
     }
 
     // Also persist to database if connected (non-blocking)
     if (isDatabaseConnected()) {
-      // Don't await - let it run in background
       setImmediate(async () => {
         try {
           const collection = getCollectionFromKey(key)
+          if (!collection) return
           const query = getIdentifierFromKey(key)
           
           // Store with metadata
@@ -242,7 +227,6 @@ export const CACHE_TTL = {
   CLAN_WAR: 120,          // 2 minutes - Current war (changes during war)
   CLAN_WAR_LOG: 120,     // 2 minutes - Historical war log
   STATS: 120,             // 2 minutes - Aggregated stats
-  CWL_FILTERED: 120,      // 2 minutes - Filtered CWL clans
 }
 
 export default cacheService

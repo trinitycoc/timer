@@ -6,25 +6,53 @@
   @include page-wrapper;
 }
 
+.clans-page-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  .clans-page-tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(102, 126, 234, 0.25);
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(102, 126, 234, 0.15);
+    }
+
+    &.active {
+      color: $primary-color;
+      background: rgba(102, 126, 234, 0.2);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+  }
+}
+
 .clans-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
   margin: 0 auto 3rem;
   max-width: 1400px;
 }
 
-// Detailed Clan Card
+// Detailed Clan Card (compact: badge left, name+tag right, single row)
 .clan-card-detailed {
-  padding: $spacing-lg;
-  padding-top: $spacing-lg;
+  padding: $spacing-sm $spacing-md;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: $spacing-md;
+  align-items: stretch;
+  gap: $spacing-xs;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
   border: 2px solid rgba(102, 126, 234, 0.15);
-  border-radius: $radius-lg;
+  border-radius: $radius-md;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
@@ -33,13 +61,63 @@
 
   // Adjust padding when banner is present
   &.cwl-clan-card {
-    padding-top: calc($spacing-lg + 50px); // Add space for nail (12px) + string (20px) + banner (18px)
+    padding-top: calc($spacing-md + 50px);
   }
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
     border-color: rgba(102, 126, 234, 0.35);
+  }
+
+  .clan-card-main {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    min-width: 0;
+  }
+
+  .clan-badge {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    background: transparent;
+    flex-shrink: 0;
+    border-radius: 8px;
+  }
+
+  .clan-name-tag {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .clan-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: 0.8rem;
+  }
+
+  .clan-card-meta .clan-members-count {
+    color: $text-secondary;
+    font-weight: 600;
+    display: inline;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .clan-card-meta .clan-war-status {
+    margin-top: 0;
+    width: auto;
   }
 
   .clan-header-row {
@@ -47,14 +125,6 @@
     align-items: center;
     gap: $spacing-md;
     width: 100%;
-  }
-
-  .clan-badge {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
-    background: transparent;
-    flex-shrink: 0;
   }
 
   .clan-name-section {
@@ -73,7 +143,7 @@
   }
 
   .clan-name {
-    font-size: 1.25rem;
+    font-size: 1rem;
     margin: 0;
     text-align: left;
     font-weight: 700;
@@ -81,9 +151,9 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    flex: 1;
     min-width: 0;
     word-break: break-word;
+    line-height: 1.2;
   }
 
   .clan-status-inline {
@@ -109,12 +179,12 @@
   }
 
   .clan-tag {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: $text-secondary;
     margin: 0;
-    padding: 4px 10px;
+    padding: 2px 8px;
     background: rgba(102, 126, 234, 0.08);
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 600;
     width: fit-content;
   }
@@ -197,34 +267,6 @@
     margin-top: $spacing-xs;
   }
 
-  .clan-capital {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-xs;
-    padding: $spacing-sm $spacing-md;
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(255, 165, 0, 0.15);
-
-    .capital-icon {
-      font-size: 1.3rem;
-    }
-
-    .capital-icon-img {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-    }
-
-    .capital-level {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #d97706;
-    }
-  }
-
   .clan-members-count {
     display: flex;
     align-items: center;
@@ -240,6 +282,49 @@
       font-size: 0.95rem;
       font-weight: 700;
       color: #2563eb;
+    }
+  }
+
+  .clan-war-status {
+    width: 100%;
+    margin-top: 0;
+    font-size: 0.8rem;
+
+    .war-status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: $radius-sm;
+      font-weight: 600;
+    }
+
+    .war-not-in-war {
+      color: $text-secondary;
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .war-not-in-war-time {
+      font-weight: 500;
+      opacity: 0.9;
+    }
+
+    .war-preparation {
+      color: #b45309;
+      background: rgba(245, 158, 11, 0.15);
+    }
+
+    .war-in-war {
+      color: #dc2626;
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .war-ended {
+      color: $text-secondary;
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .war-score {
+      font-weight: 700;
+      margin-left: 2px;
     }
   }
 
@@ -793,13 +878,11 @@
       gap: $spacing-xs;
     }
 
-    .clan-capital,
     .clan-members-count,
     .clan-league-mini {
       padding: $spacing-xs $spacing-sm;
       font-size: 0.85rem;
 
-      .capital-icon-img,
       .league-icon-img {
         width: 20px;
         height: 20px;
@@ -898,15 +981,6 @@
       &:hover {
         border-color: rgba(239, 68, 68, 0.8);
         box-shadow: 0 12px 30px rgba(239, 68, 68, 0.3);
-      }
-    }
-
-    .clan-capital {
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
-      border-color: rgba(255, 215, 0, 0.4);
-
-      .capital-level {
-        color: #fbbf24;
       }
     }
 

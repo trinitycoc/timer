@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['Trinity_Logo.png', 'app.png', 'trinity-bg.jpeg'],
       manifest: {
-        name: 'Trinity - Clan War League',
-        short_name: 'Trinity',
-        description: 'Trinity Clash of Clans Clan Management System - CWL stats, clan information, and more',
+        name: 'GFL - Clan Management',
+        short_name: 'GFL',
+        description: 'GFL Clash of Clans Clan Management System - clan information and more',
         theme_color: '#667eea',
         background_color: '#1a1a2e',
         display: 'standalone',
@@ -75,7 +75,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 5174,
+    port: 5175,
   },
 })
 

@@ -100,18 +100,15 @@ Trinity_Backend/
 ├── .env                        # Environment variables (not in git)
 ├── routes/
 │   ├── clans.js               # Clan endpoints
-│   ├── cwl.js                 # CWL endpoints
 │   ├── stats.js               # Statistics endpoints
 │   ├── images.js              # Image proxy endpoints
 │   ├── cache.js               # Cache management endpoints
 │   ├── auth.js                # Authentication endpoints
 │   ├── admin.js               # Admin dashboard endpoints
-│   ├── trinityClans.js        # Trinity clans endpoints
-│   ├── cwlClans.js            # CWL clans endpoints
-│   └── baseLayouts.js         # Base layouts endpoints
+│   └── trinityClans.js        # Trinity clans endpoints
 ├── services/
 │   ├── clashOfClansService.js # CoC API client (with caching)
-│   ├── cwlService.js          # CWL filtering logic
+│   ├── clanUtils.js           # Clan utilities (TH composition, etc.)
 │   ├── statsService.js        # Statistics aggregation
 │   ├── cacheService.js        # Cache management (memory + DB)
 │   ├── databaseService.js     # MongoDB database service
@@ -209,8 +206,6 @@ The CWL API has been simplified into focused endpoints for optimal performance:
 | `/api/stats/clans/:tag` | GET | Clan statistics | 10m |
 | `/api/stats/family` | GET | Family-wide stats | 10m |
 | `/api/images/badge/:tag/:size` | GET | Clan badge proxy | 10m |
-| `/api/base-layouts` | GET | Public base layouts | - |
-
 ### Authentication Endpoints
 
 | Endpoint | Method | Description |
@@ -232,10 +227,6 @@ The CWL API has been simplified into focused endpoints for optimal performance:
 | `/api/admin/cwl-clans` | POST | Create CWL clan | Root only |
 | `/api/admin/cwl-clans/:tag` | PUT | Update CWL clan | Root only |
 | `/api/admin/cwl-clans/:tag` | DELETE | Delete CWL clan | Root only |
-| `/api/admin/base-layouts` | GET | List base layouts | Admin |
-| `/api/admin/base-layouts` | POST | Create base layout | Admin |
-| `/api/admin/base-layouts/:level` | PUT | Update base layout | Admin |
-| `/api/admin/base-layouts/:level` | DELETE | Delete base layout | Admin |
 | `/api/auth/users` | GET | List all users | Root only |
 | `/api/auth/users/:identifier` | PUT | Update user role | Root only |
 | `/api/auth/users/:identifier` | DELETE | Delete user | Root only |
@@ -334,7 +325,6 @@ MONGODB_DB_NAME=trinity
 - `users` - User accounts
 - `trinityClans` - Trinity clan data
 - `cwlClans` - CWL clan data
-- `baseLayouts` - Farming base layouts
 - `clans` - Cached clan details
 - `wars` - Cached war data
 - `warLogs` - Cached war history

@@ -1,6 +1,10 @@
 import React from 'react'
-import { sortMembersByPosition } from '../../../utils/cwlUtils'
 import { thImages } from '../../../constants/thImages'
+
+const sortMembersByPosition = (members) => {
+  if (!members || !Array.isArray(members)) return []
+  return [...members].sort((a, b) => (a.mapPosition || 0) - (b.mapPosition || 0))
+}
 
 /**
  * Component to display war members table
@@ -8,12 +12,11 @@ import { thImages } from '../../../constants/thImages'
 export const WarMembersTable = ({ members, title, sortBy = 'position', opponentMembers = [], isAdmin = false }) => {
   if (!members || members.length === 0) return null
 
-  const sortedMembers = sortBy === 'position' 
+  const sortedMembers = sortBy === 'position'
     ? sortMembersByPosition(members)
     : members
 
-  // Sort opponent members by position to calculate sequential positions
-  const sortedOpponentMembers = sortMembersByPosition(opponentMembers)
+  const sortedOpponentMembers = sortMembersByPosition(opponentMembers || [])
 
   // Helper function to find defender by tag
   const findDefender = (defenderTag) => {

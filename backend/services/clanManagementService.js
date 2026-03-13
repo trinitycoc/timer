@@ -2,8 +2,8 @@ import { databaseService } from './databaseService.js'
 import { getClanDetails } from './clashOfClansService.js'
 
 /**
- * Trinity Clan Management Service
- * Manages Trinity clans (clans that are part of Trinity family)
+ * GFL Clan Management Service
+ * Manages GFL clans (clans that are part of GFL family)
  */
 
 /**
@@ -71,51 +71,79 @@ export const parseLeagueName = (leagueName) => {
 }
 
 /**
- * Get all Trinity clans
+ * Get all GFL clans
  * @param {Object} filters - Optional filters (status, etc.)
- * @returns {Promise<Array>} Array of Trinity clans
+ * @returns {Promise<Array>} Array of GFL clans
  */
-export const getTrinityClans = async (filters = {}) => {
+export const getGFLClans = async (filters = {}) => {
   const query = {}
   
   if (filters.status) {
     query.status = filters.status
   }
   
-  const clans = await databaseService.find('trinityClans', query, { sort: { createdAt: 1 } })
+  const clans = await databaseService.find('gflClans', query, { sort: { createdAt: 1 } })
   return clans
 }
 
 /**
- * Get Trinity clan by tag
+ * Get GFL clan by tag
  * @param {string} tag - Clan tag (with or without #)
- * @returns {Promise<Object|null>} Trinity clan or null
+ * @returns {Promise<Object|null>} GFL clan or null
  */
-export const getTrinityClanByTag = async (tag) => {
+export const getGFLClanByTag = async (tag) => {
   const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
-  return await databaseService.findOne('trinityClans', { tag: normalizedTag })
+  return await databaseService.findOne('gflClans', { tag: normalizedTag })
 }
 
 /**
- * Get active Trinity clan tags
+ * Get active GFL clan tags
  * @returns {Promise<Array<string>} Array of active clan tags
  */
-export const getActiveTrinityClanTags = async () => {
-  const clans = await databaseService.find('trinityClans', { status: 'Active' }, { sort: { createdAt: 1 } })
+export const getActiveGFLClanTags = async () => {
+  const clans = await databaseService.find('gflClans', { status: 'Active' }, { sort: { createdAt: 1 } })
   return clans.map(clan => clan.tag)
 }
 
 /**
- * Create a new Trinity clan
+ * Parse vary to number (minutes). Sheet/DB store as string or number e.g. "-4", "4", "0". Default 0.
+ */
+function parseVary(vary) {
+  if (vary === undefined || vary === null || vary === '') return 0
+  const n = Number(vary)
+  return Number.isFinite(n) ? n : 0
+}
+
+/**
+ * Get active GFL clans with vary (for war status check window). vary is in minutes.
+ * @returns {Promise<{ clans: Array<{ tag: string, vary: number }>, minVary: number, maxVary: number }>}
+ */
+export const getActiveGFLClansWithVary = async () => {
+  const clans = await databaseService.find('gflClans', { status: 'Active' }, { sort: { createdAt: 1 } })
+  const withVary = clans.map((c) => {
+    const vary = parseVary(c.vary)
+    return { tag: c.tag, vary, rawVary: c.vary }
+  })
+  if (withVary.length === 0) {
+    return { clans: [], minVary: 0, maxVary: 0 }
+  }
+  const varys = withVary.map((c) => c.vary)
+  const minVary = Math.min(...varys)
+  const maxVary = Math.max(...varys)
+  return { clans: withVary, minVary, maxVary }
+}
+
+/**
+ * Create a new GFL clan
  * @param {Object} clanData - Clan data
  * @returns {Promise<Object>} Created clan
  */
-export const createTrinityClan = async (clanData) => {
+export const createGFLClan = async (clanData) => {
   const { tag } = clanData
   const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
   
   // Check if clan already exists
-  const existing = await getTrinityClanByTag(normalizedTag)
+  const existing = await getGFLClanByTag(normalizedTag)
   if (existing) {
     throw new Error('Clan with this tag already exists')
   }
@@ -142,24 +170,24 @@ export const createTrinityClan = async (clanData) => {
     updatedAt: new Date()
   }
   
-  const inserted = await databaseService.insert('trinityClans', clan)
+  const inserted = await databaseService.insert('gflClans', clan)
   if (!inserted) {
     throw new Error('Failed to create clan')
   }
   
-  return await getTrinityClanByTag(normalizedTag)
+  return await getGFLClanByTag(normalizedTag)
 }
 
 /**
- * Update a Trinity clan
+ * Update a GFL clan
  * @param {string} tag - Clan tag
  * @param {Object} updates - Fields to update
  * @returns {Promise<Object>} Updated clan
  */
-export const updateTrinityClan = async (tag, updates) => {
+export const updateGFLClan = async (tag, updates) => {
   const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
   
-  const existing = await getTrinityClanByTag(normalizedTag)
+  const existing = await getGFLClanByTag(normalizedTag)
   if (!existing) {
     throw new Error('Clan not found')
   }
@@ -186,312 +214,97 @@ export const updateTrinityClan = async (tag, updates) => {
     }
   }
   
-  const updated = await databaseService.update('trinityClans', { tag: normalizedTag }, updateData)
+  const updated = await databaseService.update('gflClans', { tag: normalizedTag }, updateData)
   if (!updated) {
     throw new Error('Failed to update clan')
   }
   
-  return await getTrinityClanByTag(normalizedTag)
+  return await getGFLClanByTag(normalizedTag)
 }
 
 /**
- * Delete a Trinity clan
+ * Delete a GFL clan
  * @param {string} tag - Clan tag
  * @returns {Promise<boolean>} True if deleted
  */
-export const deleteTrinityClan = async (tag) => {
+export const deleteGFLClan = async (tag) => {
   const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
-  return await databaseService.delete('trinityClans', { tag: normalizedTag })
+  return await databaseService.delete('gflClans', { tag: normalizedTag })
 }
 
 /**
- * CWL Clan Management Service
- * Manages CWL clans (clans used for CWL)
+ * Upsert a GFL clan from sheet row (used by hourly sheet sync)
+ * @param {Object} row - { tag, name, status, vary }
+ * @returns {Promise<Object>} The clan document after upsert
  */
-
-/**
- * Get all CWL clans
- * @returns {Promise<Array>} Array of CWL clans sorted by inUse
- */
-export const getCWLClans = async () => {
-  const clans = await databaseService.find('cwlClans', {}, { sort: { inUse: 1 } })
-  return clans
-}
-
-/**
- * Get CWL clan by tag
- * @param {string} tag - Clan tag
- * @returns {Promise<Object|null>} CWL clan or null
- */
-export const getCWLClanByTag = async (tag) => {
-  const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
-  return await databaseService.findOne('cwlClans', { tag: normalizedTag })
-}
-
-/**
- * Get active CWL clan tags
- * @returns {Promise<Array<string>} Array of active CWL clan tags
- */
-export const getActiveCWLClanTags = async () => {
-  // Get all clans, then filter for Active status or missing status (backward compatibility)
-  const allClans = await databaseService.find('cwlClans', {}, { sort: { inUse: 1 } })
-  const activeClans = allClans.filter(clan => !clan.status || clan.status === 'Active')
-  return activeClans.map(clan => clan.tag)
-}
-
-/**
- * Get CWL clan details (same as getCWLClans, but kept for compatibility)
- * @returns {Promise<Array>} Array of CWL clan details
- */
-export const getCWLClanDetails = async () => {
-  return await getCWLClans()
-}
-
-/**
- * Get active CWL clan details (filtered by status)
- * @returns {Promise<Array>} Array of active CWL clan details
- */
-export const getActiveCWLClanDetails = async () => {
-  const allClans = await getCWLClans()
-  // Filter for Active status or missing status (backward compatibility)
-  return allClans.filter(clan => !clan.status || clan.status === 'Active')
-}
-
-/**
- * Create a new CWL clan
- * @param {Object} clanData - CWL clan data
- * @returns {Promise<Object>} Created CWL clan
- */
-export const createCWLClan = async (clanData) => {
-  const { tag, inUse } = clanData
-  const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
-  
-  // Check if clan already exists
-  const existing = await getCWLClanByTag(normalizedTag)
-  if (existing) {
-    throw new Error('CWL clan with this tag already exists')
-  }
-  
-  // Check if inUse number is already taken
-  const existingInUse = await databaseService.findOne('cwlClans', { inUse: parseInt(inUse) })
-  if (existingInUse) {
-    throw new Error(`A CWL clan with inUse number ${inUse} already exists`)
-  }
-  
-  // Auto-fetch clan name and league if not provided
-  let clanName = clanData.name || ''
-  let leagueName = clanData.league || ''
-  
-  if (!clanName || !leagueName) {
-    try {
-      const clanDetails = await getClanDetails(normalizedTag)
-      if (clanDetails) {
-        if (!clanName && clanDetails.name) {
-          clanName = clanDetails.name
-        }
-        // Auto-parse league from warLeague if not provided
-        if (!leagueName && clanDetails.warLeague && clanDetails.warLeague.name) {
-          leagueName = parseLeagueName(clanDetails.warLeague.name)
-        }
-      }
-    } catch (err) {
-      // Silently fail - clan name and league are optional
-      console.warn(`Could not auto-fetch clan data for ${normalizedTag}:`, err.message)
-    }
-  }
-  
-  const clan = {
+export const upsertGFLClanFromSheet = async (row) => {
+  const normalizedTag = row.tag.startsWith('#') ? row.tag : `#${row.tag}`
+  const existing = await getGFLClanByTag(normalizedTag)
+  const data = {
     tag: normalizedTag,
-    inUse: parseInt(inUse),
-    name: clanName,
-    format: clanData.format || '',
-    members: clanData.members || '',
-    townHall: normalizeTownHall(clanData.townHall),
-    weight: normalizeWeight(clanData.weight),
-    league: leagueName,
-    status: clanData.status || 'Active',
-    createdAt: new Date(),
+    name: row.name || '',
+    status: row.status || 'Active',
+    vary: row.vary != null ? String(row.vary) : '',
     updatedAt: new Date()
   }
-  
-  const inserted = await databaseService.insert('cwlClans', clan)
-  if (!inserted) {
-    throw new Error('Failed to create CWL clan')
-  }
-  
-  return await getCWLClanByTag(normalizedTag)
-}
-
-/**
- * Update a CWL clan
- * @param {string} tag - Clan tag
- * @param {Object} updates - Fields to update
- * @returns {Promise<Object>} Updated CWL clan
- */
-export const updateCWLClan = async (tag, updates) => {
-  const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
-  
-  const existing = await getCWLClanByTag(normalizedTag)
-  if (!existing) {
-    throw new Error('CWL clan not found')
-  }
-  
-  const updateData = {}
-  if (updates.inUse !== undefined) {
-    // Check if new inUse number is already taken by another clan
-    const existingInUse = await databaseService.findOne('cwlClans', { 
-      inUse: parseInt(updates.inUse),
-      tag: { $ne: normalizedTag }
-    })
-    if (existingInUse) {
-      throw new Error(`A CWL clan with inUse number ${updates.inUse} already exists`)
-    }
-    updateData.inUse = parseInt(updates.inUse)
-  }
-  if (updates.name !== undefined) {
-    // Auto-fetch clan name if updating to empty and tag exists
-    if (!updates.name) {
-      try {
-        const clanDetails = await getClanDetails(normalizedTag)
-        if (clanDetails && clanDetails.name) {
-          updateData.name = clanDetails.name
-        } else {
-          updateData.name = ''
-        }
-      } catch (err) {
-        updateData.name = ''
-      }
-    } else {
-      updateData.name = updates.name
-    }
-  }
-  if (updates.league !== undefined) {
-    // Auto-parse league from warLeague if updating to empty
-    if (!updates.league) {
-      try {
-        const clanDetails = await getClanDetails(normalizedTag)
-        if (clanDetails && clanDetails.warLeague && clanDetails.warLeague.name) {
-          updateData.league = parseLeagueName(clanDetails.warLeague.name)
-        } else {
-          updateData.league = ''
-        }
-      } catch (err) {
-        updateData.league = ''
-      }
-    } else {
-      updateData.league = updates.league
-    }
-  }
-  if (updates.format !== undefined) updateData.format = updates.format
-  if (updates.members !== undefined) updateData.members = updates.members
-  if (updates.townHall !== undefined) updateData.townHall = normalizeTownHall(updates.townHall)
-  if (updates.weight !== undefined) updateData.weight = normalizeWeight(updates.weight)
-  if (updates.status !== undefined) updateData.status = updates.status
-  
-  const updated = await databaseService.update('cwlClans', { tag: normalizedTag }, updateData)
-  if (!updated) {
-    throw new Error('Failed to update CWL clan')
-  }
-  
-  return await getCWLClanByTag(normalizedTag)
-}
-
-/**
- * Delete a CWL clan
- * @param {string} tag - Clan tag
- * @returns {Promise<boolean>} True if deleted
- */
-export const deleteCWLClan = async (tag) => {
-  const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
-  return await databaseService.delete('cwlClans', { tag: normalizedTag })
-}
-
-/**
- * Base Layout Management Service
- * Manages farming base layouts
- */
-
-/**
- * Get all base layouts
- * @returns {Promise<Array>} Array of base layouts sorted by townHallLevel (descending)
- */
-export const getBaseLayouts = async () => {
-  const layouts = await databaseService.find('baseLayouts', {}, { sort: { townHallLevel: -1 } })
-  return layouts
-}
-
-/**
- * Get base layout by town hall level
- * @param {number} townHallLevel - Town hall level
- * @returns {Promise<Object|null>} Base layout or null
- */
-export const getBaseLayoutByTH = async (townHallLevel) => {
-  return await databaseService.findOne('baseLayouts', { townHallLevel: parseInt(townHallLevel) })
-}
-
-/**
- * Create a new base layout
- * @param {Object} layoutData - Base layout data
- * @returns {Promise<Object>} Created base layout
- */
-export const createBaseLayout = async (layoutData) => {
-  const { townHallLevel, link, imagePath } = layoutData
-  
-  // Check if layout for this TH level already exists
-  const existing = await getBaseLayoutByTH(townHallLevel)
   if (existing) {
-    throw new Error(`Base layout for TH${townHallLevel} already exists`)
+    await databaseService.update('gflClans', { tag: normalizedTag }, {
+      name: data.name,
+      status: data.status,
+      vary: data.vary
+    })
+  } else {
+    await databaseService.insert('gflClans', {
+      ...data,
+      createdAt: new Date()
+    })
   }
-  
-  const layout = {
-    townHallLevel: parseInt(townHallLevel),
-    link: link || '',
-    imagePath: imagePath || '',
-    createdAt: new Date(),
+  return await getGFLClanByTag(normalizedTag)
+}
+
+// ============================================
+// FOLLOWING CLANS (from sheet: D=tag, E=name, G=status; no vary)
+// ============================================
+
+export const getFollowingClans = async (filters = {}) => {
+  const query = {}
+  if (filters.status) query.status = filters.status
+  return await databaseService.find('followingClans', query, { sort: { createdAt: 1 } })
+}
+
+export const getFollowingClanByTag = async (tag) => {
+  const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`
+  return await databaseService.findOne('followingClans', { tag: normalizedTag })
+}
+
+export const getActiveFollowingClanTags = async () => {
+  const clans = await databaseService.find('followingClans', { status: 'Active' }, { sort: { createdAt: 1 } })
+  return clans.map((c) => c.tag)
+}
+
+/**
+ * Upsert a following clan from sheet row (tag, name, status only; no vary)
+ */
+export const upsertFollowingClanFromSheet = async (row) => {
+  const normalizedTag = row.tag.startsWith('#') ? row.tag : `#${row.tag}`
+  const existing = await getFollowingClanByTag(normalizedTag)
+  const data = {
+    tag: normalizedTag,
+    name: row.name || '',
+    status: row.status || 'Active',
     updatedAt: new Date()
   }
-  
-  const inserted = await databaseService.insert('baseLayouts', layout)
-  if (!inserted) {
-    throw new Error('Failed to create base layout')
+  if (existing) {
+    await databaseService.update('followingClans', { tag: normalizedTag }, {
+      name: data.name,
+      status: data.status
+    })
+  } else {
+    await databaseService.insert('followingClans', {
+      ...data,
+      createdAt: new Date()
+    })
   }
-  
-  return await getBaseLayoutByTH(townHallLevel)
-}
-
-/**
- * Update a base layout
- * @param {number} townHallLevel - Town hall level
- * @param {Object} updates - Fields to update
- * @returns {Promise<Object>} Updated base layout
- */
-export const updateBaseLayout = async (townHallLevel, updates) => {
-  const th = parseInt(townHallLevel)
-  
-  const existing = await getBaseLayoutByTH(th)
-  if (!existing) {
-    throw new Error('Base layout not found')
-  }
-  
-  const updateData = {}
-  if (updates.link !== undefined) updateData.link = updates.link
-  if (updates.imagePath !== undefined) updateData.imagePath = updates.imagePath
-  
-  const updated = await databaseService.update('baseLayouts', { townHallLevel: th }, updateData)
-  if (!updated) {
-    throw new Error('Failed to update base layout')
-  }
-  
-  return await getBaseLayoutByTH(th)
-}
-
-/**
- * Delete a base layout
- * @param {number} townHallLevel - Town hall level
- * @returns {Promise<boolean>} True if deleted
- */
-export const deleteBaseLayout = async (townHallLevel) => {
-  const th = parseInt(townHallLevel)
-  return await databaseService.delete('baseLayouts', { townHallLevel: th })
+  return await getFollowingClanByTag(normalizedTag)
 }
 

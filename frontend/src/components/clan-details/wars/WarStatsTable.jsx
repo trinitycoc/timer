@@ -1,5 +1,9 @@
 import React from 'react'
-import { formatDestruction } from '../../../utils/cwlUtils'
+
+const formatDestruction = (value) => {
+  if (typeof value === 'number') return value.toFixed(2)
+  return value || '0.00'
+}
 
 /**
  * Component to display war statistics comparison table

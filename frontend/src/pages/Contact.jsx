@@ -33,11 +33,11 @@ function Contact() {
       <SectionTitle>Contact Us</SectionTitle>
       <div className="contact-content">
         <p className="page-description">
-          Have questions or want to join the Trinity family? Get in touch with us!
+          Have questions or want to join the GFL family? Get in touch with us!
         </p>
 
         {/* <div className="contact-note">
-          <p>You can contact <span className="highlight-name">Admin | HellRaiser</span> or <span className="highlight-name">Staff | Thomas Shelby</span> on <strong>Band</strong> to join Trinity.</p>
+          <p>You can contact <span className="highlight-name">Admin | HellRaiser</span> or <span className="highlight-name">Staff | Thomas Shelby</span> on <strong>Band</strong> to join GFL.</p>
         </div> */}
 
         <div className="contact-layout">
@@ -73,7 +73,7 @@ function Contact() {
 
           <div className="feedback-form">
             <h3>Feedback &amp; Questions</h3>
-            <p>Share your thoughts or ask anything about Trinity. We usually respond within a day.</p>
+            <p>Share your thoughts or ask anything about GFL. We usually respond within a day.</p>
             <form onSubmit={handleSubmit}>
               <label htmlFor="contact-name">Name</label>
               <input

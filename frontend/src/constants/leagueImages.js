@@ -1,4 +1,4 @@
-// Get base URL from Vite (handles deployment subpaths like /trinity/)
+// Get base URL from Vite (handles deployment subpaths like /gfl/)
 const BASE_URL = import.meta.env.BASE_URL
 
 // Use base URL for paths since files are in public folder

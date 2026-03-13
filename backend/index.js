@@ -7,19 +7,17 @@ import { Server } from 'socket.io'
 
 // Import routes
 import clansRouter from './routes/clans.js'
-import cwlRouter from './routes/cwl.js'
-import statsRouter from './routes/stats.js'
-import imagesRouter from './routes/images.js'
-import cacheRouter from './routes/cache.js'
 import authRouter from './routes/auth.js'
 import adminRouter from './routes/admin.js'
-import trinityClansRouter from './routes/trinityClans.js'
-import cwlClansRouter from './routes/cwlClans.js'
-import baseLayoutsRouter from './routes/baseLayouts.js'
+import gflClansRouter from './routes/gflClans.js'
 
 // Import services
 import { cacheService } from './services/cacheService.js'
 import { startCacheWarmup } from './services/cacheWarmup.js'
+import { syncGFLClansFromSheet } from './services/gflSheetSyncService.js'
+import { syncFollowingClansFromSheet } from './services/followingSheetSyncService.js'
+import { getSyncAt, advanceSyncAtToNextDay } from './services/settingsService.js'
+import { runWarStatusCheckTick, getClansToCheckWithVary, getWarCheckWindow } from './services/warStatusCheckService.js'
 import { connectDatabase, isDatabaseConnected } from './services/databaseService.js'
 import { initializeRootUser } from './services/authService.js'
 import logger from './utils/logger.js'
@@ -129,16 +127,9 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Routes
 app.use('/api/clans', clansRouter)
-app.use('/api/cwl', cwlRouter)
-app.use('/api/stats', statsRouter)
-app.use('/api/images', imagesRouter)
-app.use('/api/cache', cacheRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/admin', adminRouter)
-app.use('/api/trinity-clans', trinityClansRouter)
-app.use('/api/cwl-clans', cwlClansRouter)
-app.use('/api/base-layouts', baseLayoutsRouter)
-
+app.use('/api/gfl-clans', gflClansRouter)
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
   const cacheStats = cacheService.getStats()
@@ -160,20 +151,14 @@ app.get('/api/health', async (req, res) => {
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    name: 'Trinity Backend API',
+    name: 'GFL Backend API',
     version: '2.0.0',
       endpoints: {
       health: '/api/health',
       clans: '/api/clans',
-      cwl: '/api/cwl',
-      stats: '/api/stats',
-      images: '/api/images',
-      cache: '/api/cache',
       auth: '/api/auth',
       admin: '/api/admin',
-      trinityClans: '/api/trinity-clans',
-      cwlClans: '/api/cwl-clans',
-      baseLayouts: '/api/base-layouts'
+      gflClans: '/api/gfl-clans',
     }
   })
 })
@@ -235,7 +220,7 @@ httpServer.listen(PORT, async () => {
   }
   
   if (process.env.NODE_ENV !== 'production') {
-    logger.info('🚀 Trinity Backend Server Started')
+    logger.info('🚀 GFL Backend Server Started')
     logger.info(`📍 Server running on port ${PORT}`)
     logger.info(`🔌 WebSocket available`)
     logger.info(`💾 Cache system initialized`)
@@ -250,5 +235,84 @@ httpServer.listen(PORT, async () => {
     logger.info(`Server started on port ${PORT}`)
   }
   startCacheWarmup()
+
+  // Sheet sync (GFL + following): run once after delay, then every hour. Also on admin force resync.
+  const runAllSheetSyncs = async () => {
+    try {
+      await syncGFLClansFromSheet()
+      await syncFollowingClansFromSheet()
+    } catch (err) {
+      logger.error('Sheet sync error:', err.message)
+    }
+  }
+  const ONE_HOUR_MS = 60 * 60 * 1000
+
+  /** True if now is inside the war status check window (skip sheet sync during this time). */
+  const isInsideWarCheckWindow = async () => {
+    const syncAt = await getSyncAt()
+    if (!syncAt) return false
+    let clansWithVary
+    try {
+      clansWithVary = await getClansToCheckWithVary()
+    } catch {
+      return false
+    }
+    const { minVary, maxVary } = clansWithVary
+    const { windowStart, windowEnd } = getWarCheckWindow(syncAt, minVary, maxVary)
+    const now = new Date()
+    return now >= windowStart && now <= windowEnd
+  }
+
+  const runAllSheetSyncsUnlessInWarWindow = async () => {
+    if (await isInsideWarCheckWindow()) {
+      logger.info('Sheet sync skipped: inside war status check window')
+      return
+    }
+    await runAllSheetSyncs()
+  }
+
+  setTimeout(runAllSheetSyncsUnlessInWarWindow, 10 * 1000)
+  setInterval(runAllSheetSyncsUnlessInWarWindow, ONE_HOUR_MS)
+
+  const warCheckRecordedThisCycle = new Set()
+  let warCheckCycleSyncAt = null
+  let warCheckWindowStartLogged = false
+
+  setInterval(async () => {
+    try {
+      const syncAt = await getSyncAt()
+      if (!syncAt) return
+      const now = new Date()
+
+      let clansWithVary
+      try {
+        clansWithVary = await getClansToCheckWithVary()
+      } catch {
+        clansWithVary = { clans: [], minVary: 0, maxVary: 0 }
+      }
+      const { minVary, maxVary } = clansWithVary
+      const { windowStart, windowEnd } = getWarCheckWindow(syncAt, minVary, maxVary)
+
+      if (now > windowEnd) {
+        if (warCheckCycleSyncAt && warCheckCycleSyncAt.getTime() === syncAt.getTime()) {
+          await advanceSyncAtToNextDay()
+          warCheckRecordedThisCycle.clear()
+          warCheckCycleSyncAt = null
+          warCheckWindowStartLogged = false
+          logger.info('War status check window ended, advanced to next day')
+        }
+        return
+      }
+
+      if (now >= windowStart && !warCheckWindowStartLogged) {
+        logger.info(`War status check window started at ${windowStart.toISOString()} (syncTime: ${syncAt.toISOString()}, minVary: ${minVary}min)`)
+        warCheckWindowStartLogged = true
+      }
+      if (!warCheckCycleSyncAt) warCheckCycleSyncAt = syncAt
+      await runWarStatusCheckTick(syncAt, now, warCheckRecordedThisCycle, clansWithVary)
+    } catch (err) {
+      logger.error('War status check scheduler error:', err.message)
+    }
+  }, 60 * 1000)
 })
 

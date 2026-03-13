@@ -2,83 +2,92 @@ import express from 'express'
 import { authenticate, requireRoot, requireAdmin } from '../middleware/auth.js'
 import logger from '../utils/logger.js'
 import {
-  // Trinity clans
-  getTrinityClans,
-  getTrinityClanByTag,
-  createTrinityClan,
-  updateTrinityClan,
-  deleteTrinityClan,
-  // CWL clans
-  getCWLClans,
-  getCWLClanByTag,
-  createCWLClan,
-  updateCWLClan,
-  deleteCWLClan,
-  // Base layouts
-  getBaseLayouts,
-  getBaseLayoutByTH,
-  createBaseLayout,
-  updateBaseLayout,
-  deleteBaseLayout
+  getGFLClans,
+  getGFLClanByTag,
+  createGFLClan,
+  updateGFLClan,
+  deleteGFLClan,
+  getFollowingClans,
+  getFollowingClanByTag,
 } from '../services/clanManagementService.js'
+import { syncGFLClansFromSheet } from '../services/gflSheetSyncService.js'
+import { syncFollowingClansFromSheet } from '../services/followingSheetSyncService.js'
+import { getSyncTime, setSyncTime, getTrackSettings, setTrackSettings } from '../services/settingsService.js'
 
 const router = express.Router()
 
 // All routes require authentication
 router.use(authenticate)
 
-// ============================================
-// TRINITY CLANS ENDPOINTS
-// ============================================
-
-/**
- * GET /api/admin/trinity-clans
- * Get all Trinity clans (admin can read, root can read)
- */
-router.get('/trinity-clans', requireAdmin, async (req, res) => {
+// Handler factories to reduce duplication
+const handleGetClanList = (getClans, errorLabel) => async (req, res) => {
   try {
-    const { status } = req.query
-    const filters = status ? { status } : {}
-    const clans = await getTrinityClans(filters)
+    const filters = req.query.status ? { status: req.query.status } : {}
+    const clans = await getClans(filters)
     res.json({ clans, count: clans.length })
   } catch (error) {
-    logger.error('Error fetching Trinity clans:', error.message)
-    res.status(500).json({
-      error: 'Failed to fetch Trinity clans',
-      message: error.message
-    })
+    logger.error(`Error fetching ${errorLabel}:`, error.message)
+    res.status(500).json({ error: `Failed to fetch ${errorLabel}`, message: error.message })
   }
-})
+}
+
+const handleForceSync = (syncFn, logLabel, successMessage, errorLabel) => async (req, res) => {
+  logger.info(`Force resync request for ${logLabel}`)
+  try {
+    const result = await syncFn()
+    logger.info(`${logLabel} force sync completed: ${result.synced} upserted, ${result.skipped} skipped, ${result.errors?.length ?? 0} errors`)
+    res.json({ success: true, message: successMessage(result), ...result })
+  } catch (error) {
+    logger.error(`Error syncing ${errorLabel}:`, error.message)
+    res.status(500).json({ error: 'Failed to sync from sheet', message: error.message })
+  }
+}
+
+// ============================================
+// GFL CLANS ENDPOINTS
+// ============================================
 
 /**
- * GET /api/admin/trinity-clans/:tag
- * Get a specific Trinity clan by tag (admin can read, root can read)
+ * GET /api/admin/gfl-clans
+ * Get all GFL clans (admin can read, root can read)
  */
-router.get('/trinity-clans/:tag', requireAdmin, async (req, res) => {
+router.get('/gfl-clans', requireAdmin, handleGetClanList(getGFLClans, 'GFL clans'))
+
+/**
+ * POST /api/admin/gfl-clans/sync
+ * Force sync GFL clans from Google Sheet (admin only)
+ */
+router.post('/gfl-clans/sync', requireAdmin, handleForceSync(syncGFLClansFromSheet, 'GFL clans', (r) => `Synced ${r.synced} clans from sheet`, 'GFL clans from sheet'))
+
+/**
+ * GET /api/admin/gfl-clans/:tag
+ * Get a specific GFL clan by tag (admin can read, root can read)
+ */
+router.get('/gfl-clans/:tag', requireAdmin, async (req, res) => {
   try {
     const { tag } = req.params
-    const clan = await getTrinityClanByTag(tag)
+    const clan = await getGFLClanByTag(tag)
     if (!clan) {
       return res.status(404).json({
         error: 'Clan not found',
-        message: `No Trinity clan found with tag: ${tag}`
+        message: `No GFL clan found with tag: ${tag}`
       })
     }
     res.json({ clan })
   } catch (error) {
-    logger.error('Error fetching Trinity clan:', error.message)
+    logger.error('Error fetching GFL clan:', error.message)
     res.status(500).json({
-      error: 'Failed to fetch Trinity clan',
+      error: 'Failed to fetch GFL clan',
       message: error.message
     })
   }
 })
 
 /**
- * POST /api/admin/trinity-clans
- * Create a new Trinity clan (root only)
+ * POST /api/admin/gfl-clans
+ * Create a new GFL clan (root only)
  */
-router.post('/trinity-clans', requireRoot, async (req, res) => {
+router.post('/gfl-clans', requireRoot, async (req, res) => {
   try {
     const { tag, status, name } = req.body
     
@@ -89,311 +98,187 @@ router.post('/trinity-clans', requireRoot, async (req, res) => {
       })
     }
     
-    const clan = await createTrinityClan({ 
+    const clan = await createGFLClan({ 
       tag, 
       status: status || 'Active',
       name: name || ''
     })
-    res.status(201).json({ clan, message: 'Trinity clan created successfully' })
+    res.status(201).json({ clan, message: 'GFL clan created successfully' })
   } catch (error) {
-    logger.error('Error creating Trinity clan:', error.message)
+    logger.error('Error creating GFL clan:', error.message)
     const statusCode = error.message.includes('already exists') ? 409 : 500
     res.status(statusCode).json({
-      error: 'Failed to create Trinity clan',
+      error: 'Failed to create GFL clan',
       message: error.message
     })
   }
 })
 
 /**
- * PUT /api/admin/trinity-clans/:tag
- * Update a Trinity clan (root only)
+ * PUT /api/admin/gfl-clans/:tag
+ * Update a GFL clan (root only)
  */
-router.put('/trinity-clans/:tag', requireRoot, async (req, res) => {
+router.put('/gfl-clans/:tag', requireRoot, async (req, res) => {
   try {
     const { tag } = req.params
     const updates = req.body
     
-    const clan = await updateTrinityClan(tag, updates)
-    res.json({ clan, message: 'Trinity clan updated successfully' })
+    const clan = await updateGFLClan(tag, updates)
+    res.json({ clan, message: 'GFL clan updated successfully' })
   } catch (error) {
-    logger.error('Error updating Trinity clan:', error.message)
+    logger.error('Error updating GFL clan:', error.message)
     const statusCode = error.message.includes('not found') ? 404 : 500
     res.status(statusCode).json({
-      error: 'Failed to update Trinity clan',
+      error: 'Failed to update GFL clan',
       message: error.message
     })
   }
 })
 
 /**
- * DELETE /api/admin/trinity-clans/:tag
- * Delete a Trinity clan (root only)
+ * DELETE /api/admin/gfl-clans/:tag
+ * Delete a GFL clan (root only)
  */
-router.delete('/trinity-clans/:tag', requireRoot, async (req, res) => {
+router.delete('/gfl-clans/:tag', requireRoot, async (req, res) => {
   try {
     const { tag } = req.params
-    const deleted = await deleteTrinityClan(tag)
+    const deleted = await deleteGFLClan(tag)
     if (!deleted) {
       return res.status(404).json({
         error: 'Clan not found',
-        message: `No Trinity clan found with tag: ${tag}`
+        message: `No GFL clan found with tag: ${tag}`
       })
     }
-    res.json({ message: 'Trinity clan deleted successfully' })
+    res.json({ message: 'GFL clan deleted successfully' })
   } catch (error) {
-    logger.error('Error deleting Trinity clan:', error.message)
+    logger.error('Error deleting GFL clan:', error.message)
     res.status(500).json({
-      error: 'Failed to delete Trinity clan',
+      error: 'Failed to delete GFL clan',
       message: error.message
     })
   }
 })
 
 // ============================================
-// CWL CLANS ENDPOINTS
+// FOLLOWING CLANS ENDPOINTS (sheet: D=tag, E=name, G=status; no vary)
 // ============================================
 
 /**
- * GET /api/admin/cwl-clans
- * Get all CWL clans (admin can read, root can read)
+ * GET /api/admin/following-clans
+ * Get all following clans
  */
-router.get('/cwl-clans', requireAdmin, async (req, res) => {
-  try {
-    const clans = await getCWLClans()
-    res.json({ clans, count: clans.length })
-  } catch (error) {
-    logger.error('Error fetching CWL clans:', error.message)
-    res.status(500).json({
-      error: 'Failed to fetch CWL clans',
-      message: error.message
-    })
-  }
-})
+router.get('/following-clans', requireAdmin, handleGetClanList(getFollowingClans, 'following clans'))
 
 /**
- * GET /api/admin/cwl-clans/:tag
- * Get a specific CWL clan by tag (admin can read, root can read)
+ * POST /api/admin/following-clans/sync
+ * Force sync following clans from Google Sheet (columns D, E, G)
  */
-router.get('/cwl-clans/:tag', requireAdmin, async (req, res) => {
+router.post('/following-clans/sync', requireAdmin, handleForceSync(syncFollowingClansFromSheet, 'Following clans', (r) => `Synced ${r.synced} following clans from sheet`, 'following clans from sheet'))
+
+/**
+ * GET /api/admin/following-clans/:tag
+ * Get a specific following clan by tag
+ */
+router.get('/following-clans/:tag', requireAdmin, async (req, res) => {
   try {
     const { tag } = req.params
-    const clan = await getCWLClanByTag(tag)
+    const clan = await getFollowingClanByTag(tag)
     if (!clan) {
       return res.status(404).json({
-        error: 'CWL clan not found',
-        message: `No CWL clan found with tag: ${tag}`
+        error: 'Clan not found',
+        message: `No following clan found with tag: ${tag}`
       })
     }
     res.json({ clan })
   } catch (error) {
-    logger.error('Error fetching CWL clan:', error.message)
+    logger.error('Error fetching following clan:', error.message)
     res.status(500).json({
-      error: 'Failed to fetch CWL clan',
-      message: error.message
-    })
-  }
-})
-
-/**
- * POST /api/admin/cwl-clans
- * Create a new CWL clan (root only)
- */
-router.post('/cwl-clans', requireRoot, async (req, res) => {
-  try {
-    const { tag, inUse, name, format, members, townHall, weight, league, status } = req.body
-    
-    if (!tag || inUse === undefined) {
-      return res.status(400).json({
-        error: 'Validation error',
-        message: 'Clan tag and inUse are required'
-      })
-    }
-    
-    const clan = await createCWLClan({
-      tag,
-      inUse,
-      name: name || '',
-      format: format || '',
-      members: members || '',
-      townHall: townHall || '',
-      weight: weight || '',
-      league: league || '',
-      status: status || 'Active'
-    })
-    res.status(201).json({ clan, message: 'CWL clan created successfully' })
-  } catch (error) {
-    logger.error('Error creating CWL clan:', error.message)
-    const statusCode = error.message.includes('already exists') ? 409 : 500
-    res.status(statusCode).json({
-      error: 'Failed to create CWL clan',
-      message: error.message
-    })
-  }
-})
-
-/**
- * PUT /api/admin/cwl-clans/:tag
- * Update a CWL clan (root only)
- */
-router.put('/cwl-clans/:tag', requireRoot, async (req, res) => {
-  try {
-    const { tag } = req.params
-    const updates = req.body
-    
-    const clan = await updateCWLClan(tag, updates)
-    res.json({ clan, message: 'CWL clan updated successfully' })
-  } catch (error) {
-    logger.error('Error updating CWL clan:', error.message)
-    const statusCode = error.message.includes('not found') ? 404 : 
-                      error.message.includes('already exists') ? 409 : 500
-    res.status(statusCode).json({
-      error: 'Failed to update CWL clan',
-      message: error.message
-    })
-  }
-})
-
-/**
- * DELETE /api/admin/cwl-clans/:tag
- * Delete a CWL clan (root only)
- */
-router.delete('/cwl-clans/:tag', requireRoot, async (req, res) => {
-  try {
-    const { tag } = req.params
-    const deleted = await deleteCWLClan(tag)
-    if (!deleted) {
-      return res.status(404).json({
-        error: 'CWL clan not found',
-        message: `No CWL clan found with tag: ${tag}`
-      })
-    }
-    res.json({ message: 'CWL clan deleted successfully' })
-  } catch (error) {
-    logger.error('Error deleting CWL clan:', error.message)
-    res.status(500).json({
-      error: 'Failed to delete CWL clan',
+      error: 'Failed to fetch following clan',
       message: error.message
     })
   }
 })
 
 // ============================================
-// BASE LAYOUTS ENDPOINTS
+// SETTINGS (sync time stored in DB)
 // ============================================
 
 /**
- * GET /api/admin/base-layouts
- * Get all base layouts (admin can read, root can read)
+ * GET /api/admin/settings/sync-time
+ * Get current sync date/time (syncAt as ISO string)
  */
-router.get('/base-layouts', requireAdmin, async (req, res) => {
+router.get('/settings/sync-time', requireAdmin, async (req, res) => {
   try {
-    const layouts = await getBaseLayouts()
-    res.json({ layouts, count: layouts.length })
+    const settings = await getSyncTime()
+    res.json(settings)
   } catch (error) {
-    logger.error('Error fetching base layouts:', error.message)
+    logger.error('Error fetching sync time:', error.message)
     res.status(500).json({
-      error: 'Failed to fetch base layouts',
+      error: 'Failed to fetch sync time',
       message: error.message
     })
   }
 })
 
 /**
- * GET /api/admin/base-layouts/:townHallLevel
- * Get a specific base layout by town hall level (admin can read, root can read)
+ * PUT /api/admin/settings/sync-time
+ * Set sync date/time (body: { syncAt: 'ISO string' })
  */
-router.get('/base-layouts/:townHallLevel', requireAdmin, async (req, res) => {
+router.put('/settings/sync-time', requireAdmin, async (req, res) => {
   try {
-    const { townHallLevel } = req.params
-    const layout = await getBaseLayoutByTH(townHallLevel)
-    if (!layout) {
-      return res.status(404).json({
-        error: 'Base layout not found',
-        message: `No base layout found for TH${townHallLevel}`
-      })
-    }
-    res.json({ layout })
-  } catch (error) {
-    logger.error('Error fetching base layout:', error.message)
-    res.status(500).json({
-      error: 'Failed to fetch base layout',
-      message: error.message
-    })
-  }
-})
-
-/**
- * POST /api/admin/base-layouts
- * Create a new base layout (admin and root can create)
- */
-router.post('/base-layouts', requireAdmin, async (req, res) => {
-  try {
-    const { townHallLevel, link, imagePath } = req.body
-    
-    if (!townHallLevel || !link) {
+    const { syncAt } = req.body
+    if (!syncAt || typeof syncAt !== 'string') {
       return res.status(400).json({
         error: 'Validation error',
-        message: 'Town hall level and link are required'
+        message: 'syncAt (ISO date/time) is required'
       })
     }
-    
-    const layout = await createBaseLayout({
-      townHallLevel,
-      link,
-      imagePath: imagePath || ''
-    })
-    res.status(201).json({ layout, message: 'Base layout created successfully' })
+    const saved = await setSyncTime(syncAt)
+    res.json({ syncAt: saved, message: 'Sync date/time updated' })
   } catch (error) {
-    logger.error('Error creating base layout:', error.message)
-    const statusCode = error.message.includes('already exists') ? 409 : 500
+    logger.error('Error saving sync time:', error.message)
+    const statusCode = error.message.includes('Invalid') ? 400 : 500
     res.status(statusCode).json({
-      error: 'Failed to create base layout',
+      error: 'Failed to save sync time',
       message: error.message
     })
   }
 })
 
 /**
- * PUT /api/admin/base-layouts/:townHallLevel
- * Update a base layout (admin and root can update)
+ * GET /api/admin/settings/track-clans
+ * Get track-clans settings (trackAllGFL, trackVaryClans, trackFollowingClans)
  */
-router.put('/base-layouts/:townHallLevel', requireAdmin, async (req, res) => {
+router.get('/settings/track-clans', requireAdmin, async (req, res) => {
   try {
-    const { townHallLevel } = req.params
-    const updates = req.body
-    
-    const layout = await updateBaseLayout(townHallLevel, updates)
-    res.json({ layout, message: 'Base layout updated successfully' })
+    const settings = await getTrackSettings()
+    res.json(settings)
   } catch (error) {
-    logger.error('Error updating base layout:', error.message)
-    const statusCode = error.message.includes('not found') ? 404 : 500
-    res.status(statusCode).json({
-      error: 'Failed to update base layout',
-      message: error.message
-    })
-  }
-})
-
-/**
- * DELETE /api/admin/base-layouts/:townHallLevel
- * Delete a base layout (admin and root can delete)
- */
-router.delete('/base-layouts/:townHallLevel', requireAdmin, async (req, res) => {
-  try {
-    const { townHallLevel } = req.params
-    const deleted = await deleteBaseLayout(townHallLevel)
-    if (!deleted) {
-      return res.status(404).json({
-        error: 'Base layout not found',
-        message: `No base layout found for TH${townHallLevel}`
-      })
-    }
-    res.json({ message: 'Base layout deleted successfully' })
-  } catch (error) {
-    logger.error('Error deleting base layout:', error.message)
+    logger.error('Error fetching track settings:', error.message)
     res.status(500).json({
-      error: 'Failed to delete base layout',
+      error: 'Failed to fetch track settings',
+      message: error.message
+    })
+  }
+})
+
+/**
+ * PUT /api/admin/settings/track-clans
+ * Set track-clans settings (body: { trackAllGFL?, trackVaryClans?, trackFollowingClans? })
+ */
+router.put('/settings/track-clans', requireAdmin, async (req, res) => {
+  try {
+    const { trackAllGFL, trackVaryClans, trackFollowingClans } = req.body
+    const saved = await setTrackSettings({
+      trackAllGFL,
+      trackVaryClans,
+      trackFollowingClans
+    })
+    res.json({ ...saved, message: 'Track settings updated' })
+  } catch (error) {
+    logger.error('Error saving track settings:', error.message)
+    res.status(500).json({
+      error: 'Failed to save track settings',
       message: error.message
     })
   }

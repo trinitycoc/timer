@@ -1,7 +1,16 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import cwlImage from '/cwl.webp'
-import capitalImage from '/Capital.webp'
+
+function formatWarEndTime(isoString) {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  const now = new Date()
+  const isToday = d.toDateString() === now.toDateString()
+  if (isToday) {
+    return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  }
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+}
 
 function ClanCard({ clan, isLoading, error }) {
   const navigate = useNavigate()
@@ -36,52 +45,60 @@ function ClanCard({ clan, isLoading, error }) {
 
   return (
     <div className="clan-card clan-card-detailed" onClick={handleClick}>
-      <img
-        src={clan.badgeUrls?.medium || clan.badgeUrls?.small || clan.badgeUrls?.large}
-        alt={`${clan.name} badge`}
-        className="clan-badge"
-      />
-
-      <h4 className="clan-name">{clan.name}</h4>
-      <p className="clan-tag">{clan.tag}</p>
-
-      <div className="clan-info-row">
-        {clan.members !== undefined && (
-          <div className="clan-members-count">
-            <span className="members-label">👥 {clan.members}/50</span>
-          </div>
-        )}
-        {/* {clan.warLeague && (
-          <div className="clan-league-mini">
-            <img 
-              src={cwlImage}
-              alt="CWL badge" 
-              className="league-icon-img"
-            />
-            <span className="league-name">{clan.warLeague.name}</span>
-          </div>
-        )} */}
-
-        {/* <div className="clan-capital">
-          <img 
-            src={capitalImage}
-            alt="Capital badge" 
-            className="capital-icon-img"
-          />
-          <span className="capital-level">Capital Level {clan.clanCapitalLevel ?? 0}</span>
-        </div> */}
+      <div className="clan-card-main">
+        <img
+          src={clan.badgeUrls?.medium || clan.badgeUrls?.small || clan.badgeUrls?.large}
+          alt=""
+          className="clan-badge"
+        />
+        <div className="clan-name-tag">
+          <h4 className="clan-name">{clan.name}</h4>
+          <p className="clan-tag">{clan.tag}</p>
+        </div>
       </div>
 
-      {/* Visit In-Game Button */}
-      <a
-        href={`https://link.clashofclans.com/en/?action=OpenClanProfile&tag=${clan.tag.replace('#', '%23')}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="visit-ingame-btn"
-        onClick={(e) => e.stopPropagation()}
-      >
-        🎮 Visit In-Game
-      </a>
+      <div className="clan-card-meta">
+        {clan.members !== undefined && (
+          <span className="clan-members-count">👥 {clan.members}/50</span>
+        )}
+        {clan.currentWar && (
+        <div className="clan-war-status">
+          {clan.currentWar.state === 'notInWar' && (
+            <span className="war-status war-not-in-war">
+              Not in war
+              {clan.lastNotInWarAt && (
+                <span className="war-not-in-war-time" title={new Date(clan.lastNotInWarAt).toLocaleString()}>
+                  {' '}(since {formatWarEndTime(clan.lastNotInWarAt)})
+                </span>
+              )}
+            </span>
+          )}
+          {clan.currentWar.state === 'preparation' && (
+            <span className="war-status war-preparation">⚔️ Preparation</span>
+          )}
+          {clan.currentWar.state === 'inWar' && (
+            <span className="war-status war-in-war">
+              ⚔️ vs {clan.currentWar.opponent?.name || 'Unknown'}
+              {clan.currentWar.clan?.stars != null && clan.currentWar.opponent?.stars != null && (
+                <span className="war-score">
+                  {' '}{clan.currentWar.clan.stars} – {clan.currentWar.opponent.stars}
+                </span>
+              )}
+            </span>
+          )}
+          {clan.currentWar.state === 'warEnded' && (
+            <span className="war-status war-ended">
+              War ended
+              {clan.currentWar.clan?.stars != null && clan.currentWar.opponent?.stars != null && (
+                <span className="war-score">
+                  {' '}{clan.currentWar.clan.stars} – {clan.currentWar.opponent.stars}
+                </span>
+              )}
+            </span>
+          )}
+        </div>
+        )}
+      </div>
     </div>
   )
 }
